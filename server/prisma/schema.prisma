@@ -14,6 +14,13 @@ datasource db {
 // ENUM DEFINITIONS
 // ============================================================================
 
+enum UserStatus {
+  PENDING
+  ACTIVE
+  REJECTED
+  INACTIVE
+}
+
 enum TransactionType {
   IN
   OUT
@@ -68,15 +75,16 @@ model Role {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  email        String    @unique
-  passwordHash String    @map("password_hash")
+  id           String     @id @default(uuid())
+  email        String     @unique
+  username     String     @unique
+  passwordHash String     @map("password_hash")
   name         String
-  roleId       String    @map("role_id")
-  isActive     Boolean   @default(true) @map("is_active")
-  refreshToken String?   @map("refresh_token")
-  lastLoginAt  DateTime? @map("last_login_at")
-  createdAt    DateTime  @default(now()) @map("created_at")
+  roleId       String     @map("role_id")
+  status       UserStatus @default(PENDING)
+  refreshToken String?    @map("refresh_token")
+  lastLoginAt  DateTime?  @map("last_login_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
   role          Role          @relation(fields: [roleId], references: [id])

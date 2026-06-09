@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { validate } from '../../middleware/validation.middleware';
 import { authMiddleware } from '../../middleware/auth.middleware';
-import { loginSchema, refreshTokenSchema } from './auth.schema';
+import { loginSchema, refreshTokenSchema, registerSchema } from './auth.schema';
 import * as authController from './auth.controller';
 
 /**
@@ -15,6 +15,7 @@ import * as authController from './auth.controller';
 
 const router = Router();
 
+router.post('/register', validate(registerSchema), authController.registerHandler);
 router.post('/login', validate(loginSchema), authController.loginHandler);
 router.post('/refresh', validate(refreshTokenSchema), authController.refreshHandler);
 router.post('/logout', authMiddleware, authController.logoutHandler);

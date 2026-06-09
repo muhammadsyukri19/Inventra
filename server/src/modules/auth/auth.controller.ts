@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service';
 import { sendSuccess } from '../../utils/response';
 import { UnauthorizedError } from '../../utils/errors';
-import type { LoginInput, RefreshTokenInput } from './auth.schema';
+import type { LoginInput, RefreshTokenInput, RegisterInput } from './auth.schema';
 
 /**
  * Auth controller.
@@ -11,14 +11,28 @@ import type { LoginInput, RefreshTokenInput } from './auth.schema';
  * Delegates business logic to auth service.
  */
 
+export async function registerHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const data = req.body as RegisterInput;
+    const result = await authService.register(data);
+    sendSuccess(res, result, 201);
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function loginHandler(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const { email, password } = req.body as LoginInput;
-    const result = await authService.login(email, password);
+    const { identifier, password } = req.body as LoginInput;
+    const result = await authService.login(identifier, password);
     sendSuccess(res, result);
   } catch (error) {
     next(error);

@@ -25,9 +25,9 @@ import {
  * Login form validation schema.
  */
 const loginSchema = z.object({
-  email: z
-    .string({ required_error: 'Email wajib diisi' })
-    .email('Format email tidak valid'),
+  identifier: z
+    .string({ required_error: 'Username atau Email wajib diisi' })
+    .min(3, 'Username/Email minimal 3 karakter'),
   password: z
     .string({ required_error: 'Password wajib diisi' })
     .min(6, 'Password minimal 6 karakter'),
@@ -124,7 +124,7 @@ export default function LoginPage() {
 
           <Typography variant="h1">Masuk ke akun Anda</Typography>
           <Typography variant="body" color="secondary" className="mt-2">
-            Masukkan email dan password untuk melanjutkan
+            Masukkan username/email dan password untuk melanjutkan
           </Typography>
 
           {/* Error message */}
@@ -143,15 +143,15 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-5">
-            {/* Email — uses FormField molecule (Label + Input + error) */}
+            {/* Identifier — uses FormField molecule (Label + Input + error) */}
             <FormField
-              label="Email"
-              type="email"
-              autoComplete="email"
-              placeholder="admin@inventaris.com"
-              error={errors.email?.message}
+              label="Username atau Email"
+              type="text"
+              autoComplete="username"
+              placeholder="admin@inventaris.com / superadmin"
+              error={errors.identifier?.message}
               required
-              {...register('email')}
+              {...register('identifier')}
             />
 
             {/* Password — uses Label atom + Input atom with custom toggle */}
@@ -201,40 +201,18 @@ export default function LoginPage() {
             >
               {loginMutation.isPending ? 'Memproses...' : 'Masuk'}
             </Button>
-          </form>
-
-          {/* Demo credentials — uses Card + Typography atoms */}
-          <Card className="mt-8 p-4 bg-surface-secondary">
-            <Typography variant="body-sm" weight="medium" color="secondary" className="mb-2">
-              Demo Credentials:
-            </Typography>
-            <div className="space-y-1">
-              <Typography variant="body-sm" color="tertiary">
-                <Typography as="span" variant="body-sm" weight="medium" color="secondary">
-                  Admin:
-                </Typography>{' '}
-                admin@inventaris.com
-              </Typography>
-              <Typography variant="body-sm" color="tertiary">
-                <Typography as="span" variant="body-sm" weight="medium" color="secondary">
-                  Staff:
-                </Typography>{' '}
-                staff@inventaris.com
-              </Typography>
-              <Typography variant="body-sm" color="tertiary">
-                <Typography as="span" variant="body-sm" weight="medium" color="secondary">
-                  Owner:
-                </Typography>{' '}
-                owner@inventaris.com
-              </Typography>
-              <Typography variant="body-sm" color="tertiary" className="mt-1">
-                <Typography as="span" variant="body-sm" weight="medium" color="secondary">
-                  Password:
-                </Typography>{' '}
-                password123
+            
+            <div className="text-center mt-4">
+              <Typography variant="body-sm" color="secondary">
+                Belum punya akun?{' '}
+                <a href="/register" className="text-primary-600 hover:text-primary-700 font-medium hover:underline">
+                  Daftar sekarang
+                </a>
               </Typography>
             </div>
-          </Card>
+          </form>
+
+
         </div>
       </div>
     </Card>

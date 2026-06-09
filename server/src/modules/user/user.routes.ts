@@ -8,18 +8,18 @@ import { z } from 'zod';
 
 const router = Router();
 
-const toggleActiveSchema = z.object({
-  params: z.object({ id: z.string().uuid() }),
-  body: z.object({ isActive: z.boolean() }),
+const updateStatusSchema = z.object({
+  status: z.enum(['PENDING', 'ACTIVE', 'REJECTED', 'INACTIVE'])
 });
+
+// Public routes
+router.get('/roles', userController.getRoles);
 
 // Protect all user routes - Only Admin can manage users
 router.use(authMiddleware, rbacMiddleware('admin'));
 
-router.get('/roles', userController.getRoles);
-
 router.get('/', userController.getAll);
-router.get('/:id', validate(getUserSchema), userController.getById);
+router.get('/:id', validate(getUserSchema, 'params'), userController.getById);
 
 router.post(
   '/',
@@ -29,14 +29,16 @@ router.post(
 
 router.put(
   '/:id',
-  validate(updateUserSchema),
+  validate(getUserSchema, 'params'),
+  validate(updateUserSchema, 'body'),
   userController.update
 );
 
 router.patch(
   '/:id/status',
-  validate(toggleActiveSchema),
-  userController.toggleActive
+  validate(getUserSchema, 'params'),
+  validate(updateStatusSchema, 'body'),
+  userController.updateStatus
 );
 
 export default router;

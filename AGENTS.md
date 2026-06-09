@@ -778,3 +778,38 @@ fix(auth): handle refresh token
 18. Dokumentasi adalah bagian dari development.
 19. Kode harus mudah dibaca developer lain.
 20. Bangun sistem yang dapat berkembang tanpa rewrite besar.
+
+---
+
+# Project Vision: INVENTRA
+
+**Judul Sistem**: *Sistem Manajemen Inventaris: Integrasi Analitik Prediktif untuk Rekomendasi Restock dan Identifikasi Visual.*
+
+**Inventra** dirancang sebagai solusi manajemen inventaris cerdas yang tidak sekadar mencatat masuk-keluarnya barang secara konvensional. Sistem ini mengadopsi teknologi *Machine Learning* (Analitik Prediktif) dan *Computer Vision* (Identifikasi Visual) untuk meminimalisasi *human-error*, mencegah kehabisan stok, serta mengotomatisasi proses bisnis pergudangan dan *retail*.
+
+## Arsitektur & Fungsionalitas Saat Ini
+1. **Autentikasi & Otorisasi**: Implementasi standar JWT terpusat dengan *Role-Based Access Control* (Admin, Staff Gudang, Owner).
+2. **Sistem Approval Pengguna**: Pendaftaran mandiri (*Self-Registration*) dengan validasi Admin. Akun baru berstatus *Pending* dan harus di-Approve oleh Admin di *Dashboard* sebelum bisa login.
+3. **Tech Stack**: Next.js (Frontend), Tailwind CSS, Node.js + Express (Backend), Prisma ORM, PostgreSQL.
+
+## Roadmap & Fitur Selanjutnya (Future Features)
+1. **Modul Core Inventory (Manajemen Barang & Stok)**
+   * Sistem CRUD untuk Master Data Barang (SKU, Kategori, Harga, Lokasi Rak).
+   * Pencatatan transaksi stok masuk (Inbound) dan stok keluar (Outbound).
+   
+2. **Identifikasi Visual (Computer Vision / AI)**
+   * Fitur pemindaian produk langsung menggunakan kamera perangkat (Smartphone/Webcam).
+   * Sistem secara otomatis mengenali produk berdasarkan bentuk fisik atau kemasan untuk mempercepat *data-entry* tanpa bergantung sepenuhnya pada *barcode scanner* fisik.
+
+3. **Analitik Prediktif & Rekomendasi Restock (Machine Learning)**
+   * Menganalisis pola historis mutasi barang/penjualan untuk memprediksi kapan stok tertentu akan habis (*Stockout Prediction*).
+   * Sistem memberikan rekomendasi jumlah *restock* (*Reorder Point & Quantity*) yang optimal berdasarkan algoritma *Machine Learning*.
+
+4. **Role-Based Dashboard & Reporting Terintegrasi**
+   * **Admin**: Kontrol penuh untuk manajemen pengguna dan konfigurasi global.
+   * **Staff Gudang**: *Interface* yang dikhususkan untuk operasional harian (*scan* barang masuk/keluar).
+   * **Owner**: Antarmuka *Business Intelligence* yang menampilkan metrik aset, kesehatan bisnis, serta tren dan rekomendasi AI.
+
+5. **Notifikasi Pintar (Real-Time)**
+   * Peringatan stok menipis (*Low-Stock Alert*) yang terintegrasi dengan prediksi AI.
+   * Laporan ringkasan mingguan/bulanan otomatis.

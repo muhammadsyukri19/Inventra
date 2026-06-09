@@ -11,8 +11,16 @@ import type { UserProfile } from '@/types/common.types';
  */
 
 interface LoginPayload {
-  email: string;
+  identifier: string;
   password: string;
+}
+
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  username: string;
+  password?: string;
+  roleId: string;
 }
 
 interface LoginResponseData {
@@ -37,6 +45,14 @@ export async function loginUser(payload: LoginPayload): Promise<LoginResponseDat
     payload
   );
   return data.data;
+}
+
+export async function registerUser(payload: RegisterPayload): Promise<any> {
+  const { data } = await apiClient.post<ApiSuccessResponse<any>>(
+    API_ENDPOINTS.AUTH_REGISTER,
+    payload
+  );
+  return data;
 }
 
 export async function refreshToken(token: string): Promise<RefreshResponseData> {

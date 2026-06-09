@@ -11,16 +11,12 @@ export class UserController {
       const limit = parseInt(req.query.limit as string) || 10;
       const search = (req.query.search as string);
       const roleId = req.query.roleId as string;
-      const isActive = req.query.isActive !== undefined ? req.query.isActive === 'true' : undefined;
+      const status = req.query.status as string;
 
-      const { total, data } = await userService.findAll({ page, limit, search, roleId, isActive });
+      const { total, data } = await userService.findAll({ page, limit, search, roleId, status });
       const meta = buildPaginationMeta(total, page, limit);
 
-      sendSuccess(res, {
-        data,
-        meta,
-        message: 'Berhasil mengambil data pengguna',
-      });
+      sendSuccess(res, data, 200, meta);
     } catch (error) {
       next(error);
     }
@@ -29,10 +25,7 @@ export class UserController {
   async getById(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await userService.findById((req.params.id as string));
-      sendSuccess(res, {
-        data: user,
-        message: 'Berhasil mengambil detail pengguna',
-      });
+      sendSuccess(res, user);
     } catch (error) {
       next(error);
     }
@@ -41,11 +34,7 @@ export class UserController {
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await userService.create(req.body);
-      sendSuccess(res, {
-        data: user,
-        message: 'Pengguna berhasil ditambahkan',
-        statusCode: 201,
-      });
+      sendSuccess(res, user, 201);
     } catch (error) {
       next(error);
     }
@@ -54,23 +43,17 @@ export class UserController {
   async update(req: Request, res: Response, next: NextFunction) {
     try {
       const user = await userService.update((req.params.id as string), req.body);
-      sendSuccess(res, {
-        data: user,
-        message: 'Data pengguna berhasil diupdate',
-      });
+      sendSuccess(res, user);
     } catch (error) {
       next(error);
     }
   }
 
-  async toggleActive(req: Request, res: Response, next: NextFunction) {
+  async updateStatus(req: Request, res: Response, next: NextFunction) {
     try {
-      const isActive = req.body.isActive;
-      const user = await userService.toggleActive((req.params.id as string), isActive);
-      sendSuccess(res, {
-        data: user,
-        message: `Pengguna berhasil di${isActive ? 'aktifkan' : 'nonaktifkan'}`,
-      });
+      const status = req.body.status;
+      const user = await userService.updateStatus((req.params.id as string), status);
+      sendSuccess(res, user);
     } catch (error) {
       next(error);
     }
@@ -81,10 +64,7 @@ export class UserController {
       const roles = await prisma.role.findMany({
         orderBy: { name: 'asc' },
       });
-      sendSuccess(res, {
-        data: roles,
-        message: 'Berhasil mengambil data role',
-      });
+      sendSuccess(res, roles);
     } catch (error) {
       next(error);
     }

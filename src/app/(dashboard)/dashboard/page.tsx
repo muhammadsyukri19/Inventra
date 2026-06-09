@@ -3,6 +3,7 @@ import { Typography } from '@/components/atoms/typography';
 import { Card } from '@/components/atoms/card';
 import { StatCard } from '@/components/molecules/stat-card';
 import { EmptyState } from '@/components/molecules/empty-state';
+import { RecommendationsPanel } from '@/components/organisms/recommendations-panel';
 import {
   Package,
   Warehouse,
@@ -123,13 +124,8 @@ export default function DashboardPage() {
         </Card>
 
         <Card padding="md">
-          <Typography variant="h3">Rekomendasi Restock</Typography>
-          <EmptyState
-            icon={<RefreshCw className="h-12 w-12" />}
-            title="Belum ada rekomendasi"
-            description="Rekomendasi restock akan muncul secara otomatis"
-            className="mt-4"
-          />
+          <Typography variant="h3">Rekomendasi Restock AI</Typography>
+          <RecommendationsPanel />
         </Card>
       </div>
     </div>

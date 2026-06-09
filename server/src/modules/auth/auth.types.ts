@@ -2,6 +2,14 @@
  * Auth module type definitions.
  */
 
+export interface RegisterInput {
+  name: string;
+  email: string;
+  username: string;
+  password: string;
+  roleId: string;
+}
+
 export interface LoginResponse {
   user: {
     id: string;
@@ -26,7 +34,7 @@ export interface UserProfile {
     id: string;
     name: string;
   };
-  isActive: boolean;
+  status: string;
   lastLoginAt: Date | null;
   createdAt: Date;
 }

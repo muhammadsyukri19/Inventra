@@ -9,6 +9,7 @@ const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api/v
 
 export const API_ENDPOINTS = {
   // Auth
+  AUTH_REGISTER: `${BASE_URL}/auth/register`,
   AUTH_LOGIN: `${BASE_URL}/auth/login`,
   AUTH_REFRESH: `${BASE_URL}/auth/refresh`,
   AUTH_LOGOUT: `${BASE_URL}/auth/logout`,

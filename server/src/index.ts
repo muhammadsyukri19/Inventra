@@ -2,6 +2,7 @@ import app from './app';
 import { env } from './config/env';
 import { logger } from './utils/logger';
 import { prisma } from './config/database';
+import { initCronJobs } from './jobs/prediction.cron';
 
 /**
  * Server entry point.
@@ -15,6 +16,9 @@ async function bootstrap(): Promise<void> {
     // Verify database connection
     await prisma.$connect();
     logger.info('✅ Database connected successfully');
+
+    // Initialize cron jobs for AI Prediction
+    initCronJobs();
 
     const server = app.listen(env.PORT, () => {
       logger.info(`🚀 Server running on http://localhost:${env.PORT}`);

@@ -34,6 +34,20 @@ export function useLogin() {
 }
 
 /**
+ * Hook for register mutation.
+ */
+export function useRegister() {
+  const router = useRouter();
+
+  return useMutation({
+    mutationFn: authService.registerUser,
+    onSuccess: () => {
+      router.push(ROUTES.LOGIN);
+    },
+  });
+}
+
+/**
  * Hook for logout mutation.
  */
 export function useLogout() {

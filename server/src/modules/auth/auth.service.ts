@@ -8,7 +8,7 @@ import {
   BadRequestError,
 } from '../../utils/errors';
 import type { JwtPayload } from '../../types/common.types';
-import type { LoginResponse, RefreshResponse, UserProfile } from './auth.types';
+import type { LoginResponse, RefreshResponse, UserProfile, RegisterInput } from './auth.types';
 
 /**
  * Auth service.
@@ -36,11 +36,16 @@ function generateRefreshToken(payload: JwtPayload): string {
 }
 
 export async function login(
-  email: string,
+  identifier: string,
   password: string
 ): Promise<LoginResponse> {
-  const user = await prisma.user.findUnique({
-    where: { email },
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: identifier },
+        { username: identifier }
+      ]
+    },
     include: { role: true },
   });
 
@@ -48,8 +53,12 @@ export async function login(
     throw new UnauthorizedError('Email atau password salah');
   }
 
-  if (!user.isActive) {
-    throw new UnauthorizedError('Akun Anda telah dinonaktifkan');
+  if (user.status === 'PENDING') {
+    throw new UnauthorizedError('Akun Anda belum disetujui oleh Admin');
+  }
+
+  if (user.status !== 'ACTIVE') {
+    throw new UnauthorizedError('Akun Anda telah ditolak atau dinonaktifkan');
   }
 
   const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
@@ -173,9 +182,42 @@ export async function getProfile(userId: string): Promise<UserProfile> {
       id: user.role.id,
       name: user.role.name,
     },
-    isActive: user.isActive,
+    status: user.status,
     lastLoginAt: user.lastLoginAt,
     createdAt: user.createdAt,
+  };
+}
+
+export async function register(data: RegisterInput) {
+  const existingEmail = await prisma.user.findUnique({ where: { email: data.email } });
+  if (existingEmail) {
+    throw new BadRequestError('Email sudah terdaftar');
+  }
+
+  const existingUsername = await prisma.user.findUnique({ where: { username: data.username } });
+  if (existingUsername) {
+    throw new BadRequestError('Username sudah digunakan');
+  }
+
+  const hashedPassword = await hashPassword(data.password);
+
+  const newUser = await prisma.user.create({
+    data: {
+      name: data.name,
+      email: data.email,
+      username: data.username,
+      passwordHash: hashedPassword,
+      roleId: data.roleId,
+      status: 'PENDING',
+    },
+  });
+
+  return {
+    id: newUser.id,
+    name: newUser.name,
+    email: newUser.email,
+    username: newUser.username,
+    status: newUser.status,
   };
 }
 

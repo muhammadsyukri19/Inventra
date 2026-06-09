@@ -72,32 +72,11 @@ async function main(): Promise<void> {
       update: {},
       create: {
         email: 'admin@inventaris.com',
+        username: 'superadmin',
         passwordHash: hashedPassword,
-        name: 'Admin Utama',
+        name: 'Super Admin',
         roleId: adminRole.id,
-        isActive: true,
-      },
-    }),
-    prisma.user.upsert({
-      where: { email: 'staff@inventaris.com' },
-      update: {},
-      create: {
-        email: 'staff@inventaris.com',
-        passwordHash: hashedPassword,
-        name: 'Staff Gudang',
-        roleId: staffRole.id,
-        isActive: true,
-      },
-    }),
-    prisma.user.upsert({
-      where: { email: 'owner@inventaris.com' },
-      update: {},
-      create: {
-        email: 'owner@inventaris.com',
-        passwordHash: hashedPassword,
-        name: 'Pemilik Toko',
-        roleId: ownerRole.id,
-        isActive: true,
+        status: 'ACTIVE',
       },
     }),
   ]);
@@ -190,9 +169,7 @@ async function main(): Promise<void> {
 
   console.log('\n🎉 Seeding completed successfully!');
   console.log('\n📋 Default Login Credentials:');
-  console.log('   Admin  → admin@inventaris.com / password123');
-  console.log('   Staff  → staff@inventaris.com / password123');
-  console.log('   Owner  → owner@inventaris.com / password123');
+  console.log('   Super Admin  → admin@inventaris.com / password123');
 }
 
 main()

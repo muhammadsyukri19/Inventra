@@ -8,7 +8,8 @@ export interface UserResponse {
   id: string;
   name: string;
   email: string;
-  isActive: boolean;
+  username: string;
+  status: string;
   role: {
     id: string;
     name: string;

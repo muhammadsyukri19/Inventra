@@ -13,7 +13,8 @@ export class UserService {
       id: user.id,
       name: user.name,
       email: user.email,
-      isActive: user.isActive,
+      username: user.username,
+      status: user.status,
       role: {
         id: user.role.id,
         name: user.role.name,
@@ -32,9 +33,9 @@ export class UserService {
     limit?: number;
     search?: string;
     roleId?: string;
-    isActive?: boolean;
+    status?: any;
   }) {
-    const { page = 1, limit = 10, search, roleId, isActive } = params;
+    const { page = 1, limit = 10, search, roleId, status } = params;
     const skip = (page - 1) * limit;
 
     const where: Prisma.UserWhereInput = {};
@@ -47,7 +48,7 @@ export class UserService {
     }
 
     if (roleId) where.roleId = roleId;
-    if (isActive !== undefined) where.isActive = isActive;
+    if (status) where.status = status;
 
     const [total, data] = await Promise.all([
       prisma.user.count({ where }),
@@ -101,10 +102,11 @@ export class UserService {
     const user = await prisma.user.create({
       data: {
         email: data.email,
+        username: data.username,
         name: data.name,
         passwordHash,
         roleId: data.roleId,
-        isActive: data.isActive ?? true,
+        status: data.status ?? 'PENDING',
       },
       include: { role: true },
     });
@@ -152,14 +154,14 @@ export class UserService {
   }
 
   /**
-   * Toggle active status
+   * Update status
    */
-  async toggleActive(id: string, isActive: boolean) {
+  async updateStatus(id: string, status: any) {
     await this.findById(id);
 
     const user = await prisma.user.update({
       where: { id },
-      data: { isActive },
+      data: { status },
       include: { role: true },
     });
 
