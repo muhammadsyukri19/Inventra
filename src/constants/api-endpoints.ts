@@ -28,6 +28,7 @@ export const API_ENDPOINTS = {
   PRODUCT_DETAIL: (id: string) => `${BASE_URL}/products/${id}`,
   PRODUCT_TOGGLE_ACTIVE: (id: string) => `${BASE_URL}/products/${id}/toggle-active`,
   PRODUCTS_SCAN: `${BASE_URL}/products/scan`,
+  PRODUCT_VALIDATE: (code: string) => `${BASE_URL}/products/validate/${code}`,
 
   // ── Categories ────────────────────────────────────────────────────────────
   CATEGORIES: `${BASE_URL}/categories`,
