@@ -22,6 +22,7 @@ export const API_ENDPOINTS = {
   // Products
   PRODUCTS: `${BASE_URL}/products`,
   PRODUCT_DETAIL: (id: string) => `${BASE_URL}/products/${id}`,
+  PRODUCT_VALIDATE: (code: string) => `${BASE_URL}/products/validate/${code}`,
 
   // Categories
   CATEGORIES: `${BASE_URL}/categories`,
