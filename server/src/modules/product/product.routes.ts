@@ -19,6 +19,12 @@ router.use(authMiddleware);
 // Public (Authenticated) Read access
 router.get('/', productController.getAll);
 router.get('/:id', validate(getProductSchema), productController.getById);
+/*
+ * Menambahkan route untuk mencari produk berdasarkan SKU (Barcode)
+ */
+router.get('/validate/:code', productController.validateBySku);
+// Detail produk berdasarkan ID (UUID)
+router.get('/:id', validate(getProductSchema), productController.getById);
 
 // Admin & Staff Only access for mutations
 router.post(

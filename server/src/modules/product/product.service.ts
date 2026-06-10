@@ -100,6 +100,34 @@ export class ProductService {
   }
 
   /**
+   * Find product by SKU (Used for Scanner Validation)
+   */
+  async findBySku(sku: string) {
+    const product = await prisma.product.findUnique({
+      where: { sku },
+      include: {
+        category: { select: { id: true, name: true } },
+        supplier: { select: { id: true, name: true } },
+        inventory: {
+          select: {
+            currentStock: true,
+            minStock: true,
+            maxStock: true,
+            reorderPoint: true,
+            safetyStock: true,
+          }
+        },
+      },
+    });
+
+    if (!product) {
+      throw new NotFoundError(`Produk dengan SKU "${sku}" tidak ditemukan`);
+    }
+
+    return this.formatProductResponse(product);
+  }
+
+  /**
    * Create a new product and its initial inventory record
    */
   async create(data: CreateProductPayload) {
@@ -125,7 +153,7 @@ export class ProductService {
     const { minStock, maxStock, leadTimeDays, ...productData } = data;
 
     // Use transaction to create product and inventory together
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       const product = await tx.product.create({
         data: productData,
       });

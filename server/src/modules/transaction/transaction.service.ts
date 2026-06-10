@@ -123,9 +123,19 @@ export class TransactionService {
    * Handles creating the transaction, items, updating inventory, and logging stock movements
    * all within a single database transaction.
    */
-  async create(data: CreateTransactionPayload, userId: string) {
+  async create(payload: CreateTransactionPayload, userId: string) {
+    // --- PERBAIKAN: NORMALISASI DATA DARI MIDDLEWARE VALIDASI ---
+    // Jika data dibungkus dalam properti 'body' oleh Zod, kita keluarkan isinya.
+    const data = (payload as any).body ? (payload as any).body : payload;
+
+    // Pastikan items ada sebelum diproses (mencegah error .map() undefined)
+    if (!data.items || !Array.isArray(data.items)) {
+      throw new BadRequestError('Daftar item produk (items) tidak valid atau kosong');
+    }
+    // -------------------------------------------------------------
+
     // Basic validation to check for duplicates in the items list
-    const productIds = data.items.map(i => i.productId);
+    const productIds = data.items.map((i: any) => i.productId);
     const uniqueProductIds = new Set(productIds);
     if (productIds.length !== uniqueProductIds.size) {
       throw new BadRequestError('Terdapat produk duplikat dalam daftar transaksi');
@@ -160,7 +170,7 @@ export class TransactionService {
 
     // Calculate subtotal and total
     let totalAmount = 0;
-    const itemsData = data.items.map(item => {
+    const itemsData = data.items.map((item: any) => {
       const subtotal = item.quantity * item.unitPrice;
       totalAmount += subtotal;
       return {
@@ -189,7 +199,7 @@ export class TransactionService {
 
       // 2. Create Transaction Items
       await tx.transactionItem.createMany({
-        data: itemsData.map(item => ({
+        data: itemsData.map((item: any) => ({
           ...item,
           transactionId: transaction.id,
         })),

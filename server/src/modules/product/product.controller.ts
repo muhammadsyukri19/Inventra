@@ -42,6 +42,21 @@ export class ProductController {
     }
   }
 
+  async validateBySku(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { code } = req.params; // Mengambil kode dari URL /products/validate/:code
+      
+      const product = await productService.findBySku(req.params.code as string);
+      
+      sendSuccess(res, {
+        data: product,
+        message: 'Produk ditemukan dan valid',
+      });
+    } catch (error) {
+      next(error); // Error 404 jika tidak ditemukan akan ditangani global error handler
+    }
+  }
+
   async create(req: Request, res: Response, next: NextFunction) {
     try {
       const product = await productService.create(req.body);
