@@ -159,4 +159,19 @@ export class RecommendationService {
       ],
     });
   }
+
+  async updateRecommendationStatus(id: string, status: RecommendationStatus) {
+    return prisma.restockRecommendation.update({
+      where: { id },
+      data: { status },
+      include: {
+        product: {
+          include: {
+            category: true,
+            supplier: true,
+          }
+        }
+      }
+    });
+  }
 }
