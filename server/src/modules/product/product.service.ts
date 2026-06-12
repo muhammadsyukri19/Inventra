@@ -7,7 +7,7 @@ export class ProductService {
   /**
    * Helper to format product response, converting Decimal to number
    */
-  private formatProductResponse(product: ProductResponse & { price: unknown; costPrice: unknown }): ProductResponse {
+  private formatProductResponse(product: any): ProductResponse {
     return {
       ...product,
       price: Number(product.price),
@@ -84,7 +84,7 @@ export class ProductService {
       }),
     ]);
 
-    return { total, data: data.map(this.formatProductResponse) };
+    return { total, data: data.map(p => this.formatProductResponse(p)) };
   }
 
   /**
@@ -138,7 +138,12 @@ export class ProductService {
   /**
    * Create a new product and its initial inventory record
    */
-  async create(data: CreateProductPayload) {
+  async create(payload: CreateProductPayload) {
+    // --- PERBAIKAN: NORMALISASI DATA DARI MIDDLEWARE VALIDASI ---
+    // Jika data dibungkus dalam properti 'body' oleh Zod, kita keluarkan isinya.
+    const data = (payload as any).body ? (payload as any).body : payload;
+    // -------------------------------------------------------------
+
     const existing = await prisma.product.findUnique({
       where: { sku: data.sku },
     });
@@ -166,19 +171,17 @@ export class ProductService {
         data: productData,
       });
 
-      // Calculate initial safety stock (simplified: just max - min, normally involves std dev of demand)
+      // Calculate initial safety stock
       const safetyStock = maxStock > minStock ? Math.floor((maxStock - minStock) * 0.2) : 0;
-      
-      // ROP = (Avg Daily Sales * Lead Time) + Safety Stock. Since brand new, Avg Daily Sales = 0.
       const reorderPoint = safetyStock;
 
       const inventory = await tx.inventory.create({
         data: {
           productId: product.id,
           currentStock: 0,
-          minStock,
-          maxStock,
-          leadTimeDays,
+          minStock: Number(minStock),
+          maxStock: Number(maxStock),
+          leadTimeDays: Number(leadTimeDays),
           safetyStock,
           reorderPoint,
         }
@@ -193,7 +196,8 @@ export class ProductService {
   /**
    * Update an existing product
    */
-  async update(id: string, data: UpdateProductPayload) {
+  async update(id: string, payload: UpdateProductPayload) {
+    const data = (payload as any).body ? (payload as any).body : payload;
     await this.findById(id);
 
     if (data.sku) {
@@ -204,16 +208,6 @@ export class ProductService {
       if (existing) {
         throw new ConflictError('SKU sudah digunakan oleh produk lain');
       }
-    }
-
-    if (data.categoryId) {
-      const category = await prisma.category.findUnique({ where: { id: data.categoryId } });
-      if (!category) throw new NotFoundError('Kategori tidak ditemukan');
-    }
-
-    if (data.supplierId) {
-      const supplier = await prisma.supplier.findUnique({ where: { id: data.supplierId } });
-      if (!supplier) throw new NotFoundError('Supplier tidak ditemukan');
     }
 
     await prisma.product.update({

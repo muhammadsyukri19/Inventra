@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { createProductSchema, updateProductSchema } from './product.schema';
+import { Decimal } from '@prisma/client/runtime/library';
 
 export type CreateProductPayload = z.infer<typeof createProductSchema>['body'];
 export type UpdateProductPayload = z.infer<typeof updateProductSchema>['body'];
@@ -9,8 +10,8 @@ export interface ProductResponse {
   sku: string;
   name: string;
   description: string | null;
-  price: number;
-  costPrice: number;
+  price: number | Decimal;
+  costPrice: number | Decimal;
   categoryId: string;
   supplierId: string | null;
   unit: string;
