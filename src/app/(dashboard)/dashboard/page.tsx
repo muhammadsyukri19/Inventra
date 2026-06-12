@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Typography } from '@/components/atoms/typography';
+import { Button } from '@/components/atoms/button'; // Import yang tadi ketinggalan
 import { Card } from '@/components/atoms/card';
 import { StatCard } from '@/components/molecules/stat-card';
 import { EmptyState } from '@/components/molecules/empty-state';
@@ -15,10 +16,12 @@ import {
   ArrowLeftRight,
   BarChart3,
   Loader2,
+  FileDown, 
 } from 'lucide-react';
 import { SalesChart } from '@/components/molecules/sales-chart'; 
 import apiClient from '@/services/api-client';
 import { API_ENDPOINTS } from '@/constants/api-endpoints';
+import { exportDashboardPDF } from '@/utils/exportReport';
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false);
@@ -42,29 +45,39 @@ export default function DashboardPage() {
     }
   };
 
-  /**
-   * FUNGSI PENGAMAN TERKUAT
-   * Menjamin output selalu STRING yang valid (bukan NaN atau null)
-   */
   const safeVal = (val: any): string => {
     if (val === null || val === undefined) return "0";
     const num = Number(val);
-    if (isNaN(num)) return "0";
-    return String(num);
+    return isNaN(num) ? "0" : String(num);
   };
 
   if (!mounted) return null;
 
   return (
-    <div className="space-y-6 animate-fade-in p-6">
-      <div className="flex justify-between items-end">
+    <div className="space-y-6 animate-fade-in p-6 text-slate-900">
+      
+      {/* HEADER SECTION DENGAN TOMBOL EKSPOR */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
         <div>
           <Typography variant="h1" className="text-slate-900 font-bold">Dashboard</Typography>
           <Typography variant="body" color="secondary" className="mt-1">
             Ringkasan inventaris dan analitik penjualan real-time
           </Typography>
         </div>
-        {isLoading && <Loader2 className="animate-spin text-primary-500 mb-2" />}
+
+        <Button 
+          variant="ghost" 
+          className="flex gap-2 items-center border border-slate-200 text-slate-700 hover:bg-slate-50 px-6 py-6 font-bold"
+          onClick={() => exportDashboardPDF(summary)}
+          disabled={!summary || isLoading}
+        >
+          {isLoading ? (
+            <Loader2 className="animate-spin h-5 w-5" />
+          ) : (
+            <FileDown className="h-5 w-5 text-primary-600" />
+          )}
+          Ekspor Laporan PDF
+        </Button>
       </div>
 
       {/* 1. SUMMARY CARDS */}
@@ -79,7 +92,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         {/* 2. SALES CHART */}
-        <Card padding="md" className="lg:col-span-2 bg-white border border-slate-200">
+        <Card padding="md" className="lg:col-span-2 bg-white border border-slate-200 shadow-sm">
           <Typography variant="h3" className="text-slate-800">Grafik Penjualan</Typography>
           {summary?.chartData?.length > 0 ? (
             <SalesChart data={summary.chartData} />
@@ -88,8 +101,8 @@ export default function DashboardPage() {
           )}
         </Card>
 
-        {/* 3. PERINGATAN STOK - Lokasi NaN yang sering terjadi */}
-        <Card padding="md" className="bg-white border border-slate-200">
+        {/* 3. PERINGATAN STOK */}
+        <Card padding="md" className="bg-white border border-slate-200 shadow-sm">
           <Typography variant="h3" className="text-slate-800">Peringatan Stok</Typography>
           {Number(summary?.lowStockCount) > 0 ? (
             <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-3 text-orange-800">
@@ -118,7 +131,6 @@ export default function DashboardPage() {
                     </div>
                     <p className="text-sm font-bold uppercase">{item.name}</p>
                   </div>
-                  {/* PENGGUNAAN safeVal DI SINI */}
                   <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-700">
                     {safeVal(item.totalSold)} Terjual
                   </span>
