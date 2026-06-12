@@ -13,6 +13,7 @@ import { API_ENDPOINTS } from '@/constants/api-endpoints';
 export default function ProductsPage() {
   const [mounted, setMounted] = useState(false);
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -30,7 +31,19 @@ export default function ProductsPage() {
   useEffect(() => {
     setMounted(true);
     fetchProducts();
+    fetchCategories();
   }, []);
+
+  // FUNGSI UNTUK MENGAMBIL DAFTAR KATEGORI
+  const fetchCategories = async () => {
+    try {
+      const response = await apiClient.get(API_ENDPOINTS.CATEGORIES);
+      const result = response.data.data;
+      setCategories(Array.isArray(result) ? result : result.data || []);
+    } catch (error) {
+      console.error("Gagal mengambil kategori:", error);
+    }
+  };
 
   const fetchProducts = async () => {
     try {
@@ -359,14 +372,18 @@ export default function ProductsPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">ID Kategori (UUID)</label>
-              <input 
-                required 
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 font-mono text-xs text-primary-700" 
-                value={formData.categoryId} 
-                onChange={e => setFormData({...formData, categoryId: e.target.value})} 
-                placeholder="Tempel ID Kategori di sini..."
-              />
+              <label className="text-sm font-semibold text-slate-700">Kategori</label>
+              <select
+                required
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white outline-none transition-all text-slate-900 font-medium"
+                value={formData.categoryId}
+                onChange={e => setFormData({...formData, categoryId: e.target.value})}
+              >
+                <option value="">-- Pilih Kategori --</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -420,7 +437,7 @@ export default function ProductsPage() {
   </div>
 )}
 
-      {/* --- MODAL EDIT PRODUK (VERSI PREMIUM) --- */}
+      {/* --- MODAL EDIT PRODUK --- */}
 {isEditModalOpen && editFormData && (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
     <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in duration-200">
@@ -499,13 +516,18 @@ export default function ProductsPage() {
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-slate-700">UUID Kategori</label>
-              <input 
-                required 
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 font-mono text-xs text-blue-700" 
-                value={editFormData.categoryId} 
-                onChange={e => setEditFormData({...editFormData, categoryId: e.target.value})} 
-              />
+              <label className="text-sm font-semibold text-slate-700">Kategori</label>
+              <select
+                required
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white outline-none transition-all text-slate-900 font-medium"
+                value={editFormData.categoryId}
+                onChange={e => setEditFormData({...editFormData, categoryId: e.target.value})}
+              >
+                <option value="">-- Pilih Kategori --</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
             </div>
           </div>
 
