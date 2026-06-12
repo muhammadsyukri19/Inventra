@@ -34,15 +34,15 @@ export class InventoryService {
         // Prisma cannot compare two columns directly in a where clause,
         // so we use $queryRaw to find product IDs where 0 < current_stock <= reorder_point
         const lowStockProductIds = await prisma.$queryRaw<{ product_id: string }[]>`
-          SELECT product_id FROM inventories
-          WHERE current_stock > 0 AND current_stock <= reorder_point
+          SELECT "product_id" FROM "inventories"
+          WHERE "current_stock" > 0 AND "current_stock" <= "reorder_point"
         `;
         where.productId = { in: lowStockProductIds.map(r => r.product_id) };
       } else if (stockStatus === 'safe') {
         // Safe stock means current_stock > reorder_point
         const safeProductIds = await prisma.$queryRaw<{ product_id: string }[]>`
-          SELECT product_id FROM inventories
-          WHERE current_stock > reorder_point
+          SELECT "product_id" FROM "inventories"
+          WHERE "current_stock" > "reorder_point"
         `;
         where.productId = { in: safeProductIds.map(r => r.product_id) };
       }
