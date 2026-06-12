@@ -41,7 +41,7 @@ export const RecommendationsPanel = () => {
   return (
     <div className="mt-4 space-y-4">
       <div className="flex justify-end">
-         <Button variant="outline" size="sm" onClick={fetchRecommendations} disabled={isLoading}>
+         <Button variant="secondary" size="sm" onClick={fetchRecommendations} disabled={isLoading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
             Refresh
          </Button>
@@ -51,7 +51,7 @@ export const RecommendationsPanel = () => {
           <li key={rec.id} className="p-3 bg-surface border border-default rounded-lg flex items-center justify-between">
             <div>
               <Typography variant="body" className="font-semibold">{rec.product.name}</Typography>
-              <Typography variant="body2" color="secondary">
+              <Typography variant="body-sm" color="secondary">
                 Stok: {rec.currentStock} | Rekomendasi Pesan: {rec.recommendedQuantity}
               </Typography>
             </div>

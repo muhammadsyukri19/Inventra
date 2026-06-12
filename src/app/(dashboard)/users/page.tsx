@@ -60,7 +60,7 @@ export default function UsersPage() {
             Kelola persetujuan pendaftaran dan status akun pengguna
           </Typography>
         </div>
-        <Button variant="outline" size="sm" onClick={fetchUsers} disabled={isLoading}>
+        <Button variant="secondary" size="sm" onClick={fetchUsers} disabled={isLoading}>
           <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
@@ -117,12 +117,12 @@ export default function UsersPage() {
                           </>
                         )}
                         {user.status === 'ACTIVE' && (
-                          <Button variant="outline" size="sm" onClick={() => handleUpdateStatus(user.id, 'INACTIVE')} title="Nonaktifkan">
+                          <Button variant="secondary" size="sm" onClick={() => handleUpdateStatus(user.id, 'INACTIVE')} title="Nonaktifkan">
                             <Ban className="h-4 w-4" />
                           </Button>
                         )}
                         {(user.status === 'INACTIVE' || user.status === 'REJECTED') && (
-                          <Button variant="outline" size="sm" onClick={() => handleUpdateStatus(user.id, 'ACTIVE')} title="Aktifkan">
+                          <Button variant="secondary" size="sm" onClick={() => handleUpdateStatus(user.id, 'ACTIVE')} title="Aktifkan">
                             <Check className="h-4 w-4" />
                           </Button>
                         )}
