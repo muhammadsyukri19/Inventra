@@ -181,15 +181,28 @@ export default function ProductsPage() {
       header: 'Nama Produk',
       render: (row: any) => (
         <div className="flex flex-col text-slate-900">
-          <span className="font-semibold uppercase">{row.name}</span>
-          <span className="text-xs text-slate-500">{row.category?.name || 'Umum'}</span>
+          <span className="font-semibold uppercase leading-tight">{row.name}</span>
+          <span className="text-[10px] text-slate-400 font-medium">{row.category?.name || 'Umum'}</span>
         </div>
+      )
+    },
+    {
+      key: 'costPrice',
+      header: 'Harga Pokok',
+      render: (row: any) => (
+        <span className="text-slate-900 font-bold">
+          Rp{Number(row.costPrice || 0).toLocaleString('id-ID')}
+        </span>
       )
     },
     {
       key: 'price',
       header: 'Harga Jual',
-      render: (row: any) => <span className="text-slate-900">Rp{Number(row.price).toLocaleString('id-ID')}</span>
+      render: (row: any) => (
+        <span className="text-slate-900 font-bold">
+          Rp{Number(row.price).toLocaleString('id-ID')}
+        </span>
+      )
     },
     {
       key: 'inventory',
@@ -202,12 +215,24 @@ export default function ProductsPage() {
     {
       key: 'actions',
       header: 'Aksi',
+      // Kita buat container rata kiri (justify-start) agar pas di bawah tulisan "Aksi"
       render: (row: any) => (
-        <div className="flex gap-2 justify-center">
-          <Button variant="ghost" size="icon" className="text-blue-600 hover:bg-blue-50" onClick={() => handleEditClick(row)}>
+        <div className="flex items-center justify-start gap-1 ml-[-8px]">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-blue-600 hover:bg-blue-50 transition-all rounded-lg" 
+            onClick={() => handleEditClick(row)}
+          >
             <Edit2 className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-red-600 hover:bg-red-50" onClick={() => handleDelete(row.id)}>
+          
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-red-600 hover:bg-red-50 transition-all rounded-lg" 
+            onClick={() => handleDelete(row.id)}
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
