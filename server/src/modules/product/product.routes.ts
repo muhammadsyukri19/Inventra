@@ -26,6 +26,9 @@ router.get('/validate/:code', productController.validateBySku);
 // Detail produk berdasarkan ID (UUID)
 router.get('/:id', validate(getProductSchema), productController.getById);
 
+// Admin Only access for delete
+router.delete('/:id', rbacMiddleware('admin'), productController.delete);
+
 // Admin & Staff Only access for mutations
 router.post(
   '/',

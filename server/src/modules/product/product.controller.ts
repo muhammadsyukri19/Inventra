@@ -94,6 +94,20 @@ export class ProductController {
       next(error);
     }
   }
+
+async delete(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+    
+    await productService.delete(id as string); 
+    
+    sendSuccess(res, {
+      message: 'Produk berhasil dihapus selamanya'
+    });
+  } catch (error) {
+    next(error);
+  }
+}
 }
 
 export const productController = new ProductController();

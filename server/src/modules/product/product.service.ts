@@ -231,6 +231,38 @@ export class ProductService {
 
     return this.findById(id);
   }
+
+  /**
+   * Delete a product and its inventory record
+   */
+  async delete(id: string) {
+    // 1. Cek apakah produk ada
+    await this.findById(id);
+
+    // 2. Cek apakah produk sudah punya riwayat transaksi
+    // Ini PENTING agar data laporan keuangan tidak rusak (Integrity Constraint)
+    const hasTransactions = await prisma.transactionItem.findFirst({
+      where: { productId: id }
+    });
+
+    if (hasTransactions) {
+      // Jika sudah ada transaksi, lempar error
+      throw new Error('Produk tidak bisa dihapus karena sudah memiliki riwayat transaksi. Silakan nonaktifkan saja.');
+    }
+
+    // 3. Hapus data secara aman menggunakan Transaction
+    return await prisma.$transaction(async (tx: any) => {
+      // Hapus data inventory dulu (karena dia anak dari product)
+      await tx.inventory.deleteMany({
+        where: { productId: id }
+      });
+
+      // Baru hapus produknya
+      return await tx.product.delete({
+        where: { id }
+      });
+    });
+  }
 }
 
 export const productService = new ProductService();

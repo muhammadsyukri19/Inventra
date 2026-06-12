@@ -6,7 +6,7 @@ import { Button } from '@/components/atoms/button';
 import { Card } from '@/components/atoms/card';
 import { DataTable } from '@/components/molecules/data-table';
 import { Badge } from '@/components/atoms/badge';
-import { Plus, Edit2, Trash2, Search, Package, Loader2, X, AlertCircle } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Package, Loader2, X, AlertCircle, TrendingUp, AlertTriangle, Info } from 'lucide-react';
 import apiClient from '@/services/api-client';
 import { API_ENDPOINTS } from '@/constants/api-endpoints';
 
@@ -139,16 +139,29 @@ export default function ProductsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Apakah Anda yakin ingin menghapus produk ini?")) {
-      try {
-        await apiClient.delete(API_ENDPOINTS.PRODUCT_DETAIL(id));
-        alert("✅ Berhasil dihapus");
-        fetchProducts();
-      } catch (error) {
-        alert("❌ Gagal hapus");
-      }
+  if (confirm("⚠️ PERINGATAN: Menghapus produk akan menghapus stok. Lanjutkan?")) {
+    try {
+      setIsLoading(true);
+
+      // BUNGKUS PAYLOAD AGAR LOLOS ZOD
+      const config = {
+        data: {
+          params: { id: id } 
+        }
+      };
+
+      await apiClient.delete(`${API_ENDPOINTS.PRODUCTS}/${id}`, config);
+      
+      alert("✅ Berhasil dihapus!");
+      fetchProducts(); // Refresh tabel
+    } catch (error: any) {
+      const msg = error.response?.data?.message || "Gagal hapus (Cek riwayat transaksi)";
+      alert("❌ " + msg);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }
+};
 
   const filteredProducts = Array.isArray(products) 
     ? products.filter((p: any) => 
@@ -235,71 +248,270 @@ export default function ProductsPage() {
         </div>
       </Card>
 
-      {/* --- MODAL TAMBAH --- */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-              <Typography variant="h3">Tambah Produk Baru</Typography>
-              <button onClick={() => setIsAddModalOpen(false)}><X className="text-slate-500 w-6 h-6" /></button>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in duration-200">
+      
+      {/* Header Modal - Lebih Berwarna */}
+      <div className="px-8 py-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div>
+          <Typography variant="h3" className="text-slate-900 font-bold">Tambah Produk Baru</Typography>
+          <p className="text-xs text-slate-500 mt-1">Lengkapi informasi produk untuk menambah stok baru.</p>
+        </div>
+        <button 
+          onClick={() => setIsAddModalOpen(false)} 
+          className="p-2 hover:bg-slate-200 rounded-full transition-all"
+        >
+          <X className="text-slate-400 w-6 h-6" />
+        </button>
+      </div>
+      
+      <form onSubmit={handleAddProduct}>
+        {/* Konten Modal - Menggunakan Padding 8 agar tidak rapat */}
+        <div className="p-8 space-y-8 max-h-[65vh] overflow-y-auto">
+          
+          {/* SEKSI 1: INFORMASI DASAR */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-primary-600">
+               <Package className="w-4 h-4" />
+               <span className="text-xs font-bold uppercase tracking-wider">Informasi Dasar</span>
             </div>
-            <form onSubmit={handleAddProduct} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <input required className="w-full px-4 py-2 border rounded-lg text-slate-900" placeholder="SKU" value={formData.sku} onChange={e => setFormData({...formData, sku: e.target.value})} />
-                <input required className="w-full px-4 py-2 border rounded-lg text-slate-900" placeholder="Nama Produk" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-slate-700">SKU / Kode Barcode</label>
+                <input 
+                  required 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900" 
+                  value={formData.sku} 
+                  onChange={e => setFormData({...formData, sku: e.target.value})} 
+                  placeholder="Misal: 12345" 
+                />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <input required type="number" className="w-full px-4 py-2 border rounded-lg text-slate-900" placeholder="Harga Jual" value={formData.price} onChange={e => setFormData({...formData, price: e.target.value})} />
-                <input required type="number" className="w-full px-4 py-2 border rounded-lg text-slate-900" placeholder="Harga Pokok" value={formData.costPrice} onChange={e => setFormData({...formData, costPrice: e.target.value})} />
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-slate-700">Nama Produk</label>
+                <input 
+                  required 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-primary/20 outline-none transition-all text-slate-900" 
+                  value={formData.name} 
+                  onChange={e => setFormData({...formData, name: e.target.value})} 
+                  placeholder="Masukkan nama barang..." 
+                />
               </div>
-              <input required className="w-full px-4 py-2 border rounded-lg text-slate-900 font-mono text-sm" placeholder="ID Kategori (UUID)" value={formData.categoryId} onChange={e => setFormData({...formData, categoryId: e.target.value})} />
-              <Button type="submit" className="w-full py-4 font-bold" disabled={isSubmitting}>{isSubmitting ? <Loader2 className="animate-spin" /> : "Simpan Produk"}</Button>
-            </form>
+            </div>
+          </div>
+
+          {/* SEKSI 2: HARGA & KATEGORI */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-primary-600">
+               <TrendingUp className="w-4 h-4" />
+               <span className="text-xs font-bold uppercase tracking-wider">Harga & Kategori</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-slate-700">Harga Jual (Rp)</label>
+                <input 
+                  required type="number" 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-all text-slate-900 font-medium" 
+                  value={formData.price} 
+                  onChange={e => setFormData({...formData, price: e.target.value})} 
+                />
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-slate-700">Harga Pokok (Rp)</label>
+                <input 
+                  required type="number" 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-all text-slate-900 font-medium" 
+                  value={formData.costPrice} 
+                  onChange={e => setFormData({...formData, costPrice: e.target.value})} 
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-slate-700">ID Kategori (UUID)</label>
+              <input 
+                required 
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 font-mono text-xs text-primary-700" 
+                value={formData.categoryId} 
+                onChange={e => setFormData({...formData, categoryId: e.target.value})} 
+                placeholder="Tempel ID Kategori di sini..."
+              />
+            </div>
+          </div>
+
+          {/* SEKSI 3: KEBIJAKAN STOK (AI INPUT) */}
+          <div className="p-4 bg-primary-50/50 rounded-2xl border border-primary-100 space-y-4">
+            <div className="flex items-center gap-2 text-primary-700">
+               <AlertTriangle className="w-4 h-4" />
+               <span className="text-xs font-bold uppercase tracking-wider">Konfigurasi Stok AI</span>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase">Stok Min</label>
+                <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white" value={formData.minStock} onChange={e => setFormData({...formData, minStock: e.target.value})} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase">Stok Max</label>
+                <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white" value={formData.maxStock} onChange={e => setFormData({...formData, maxStock: e.target.value})} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase">Lead Time</label>
+                <input type="number" className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-white" value={formData.leadTimeDays} onChange={e => setFormData({...formData, leadTimeDays: e.target.value})} />
+              </div>
+            </div>
           </div>
         </div>
-      )}
+        
+        {/* Footer Modal - Terpisah dengan background berbeda */}
+        <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
+           <Button 
+            type="button"
+            variant="ghost" 
+            onClick={() => setIsAddModalOpen(false)} 
+            className="flex-1 py-4 border border-slate-200 hover:bg-white"
+          >
+            Batal
+          </Button>
+           <Button 
+            type="submit" 
+            className="flex-1 font-bold py-4 shadow-blue-500/20 shadow-lg" 
+            disabled={isSubmitting}
+          >
+             {isSubmitting ? (
+               <div className="flex items-center gap-2"><Loader2 className="animate-spin w-5 h-5" /> Menyimpan...</div>
+             ) : (
+               "Tambah ke Inventaris"
+             )}
+           </Button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
 
-      {/* --- MODAL EDIT --- */}
-      {isEditModalOpen && editFormData && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 text-slate-900">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in duration-200">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-blue-50">
-              <Typography variant="h3" className="text-blue-800">Edit Produk: {editFormData.sku}</Typography>
-              <button onClick={() => setIsEditModalOpen(false)}><X className="text-slate-500 w-6 h-6" /></button>
+      {/* --- MODAL EDIT PRODUK (VERSI PREMIUM) --- */}
+{isEditModalOpen && editFormData && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+    <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in duration-200">
+      
+      {/* Header Modal - Warna Biru sesuai tema Edit */}
+      <div className="px-8 py-6 border-b border-blue-50 flex justify-between items-center bg-blue-50/30">
+        <div>
+          <Typography variant="h3" className="text-blue-900 font-bold">Edit Detail Produk</Typography>
+          <p className="text-xs text-blue-600 mt-1 font-medium flex items-center gap-1">
+            <Package className="w-3 h-3" /> SKU: {editFormData.sku}
+          </p>
+        </div>
+        <button 
+          onClick={() => setIsEditModalOpen(false)} 
+          className="p-2 hover:bg-blue-100 rounded-full transition-all"
+        >
+          <X className="text-blue-400 w-6 h-6" />
+        </button>
+      </div>
+      
+      <form onSubmit={handleUpdateProduct}>
+        <div className="p-8 space-y-8 max-h-[65vh] overflow-y-auto">
+          
+          {/* SEKSI 1: IDENTITAS BARANG */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-blue-600">
+               <Info className="w-4 h-4" />
+               <span className="text-xs font-bold uppercase tracking-wider">Identitas Barang</span>
             </div>
-            
-            <form onSubmit={handleUpdateProduct} className="p-6 space-y-4">
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase">Nama Produk</label>
-                <input required className="w-full mt-1 px-4 py-2 border border-slate-300 rounded-lg bg-white" value={editFormData.name} onChange={e => setEditFormData({...editFormData, name: e.target.value})} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-slate-700">SKU / Kode Barang</label>
+                <input 
+                  required 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 text-slate-400 cursor-not-allowed font-mono" 
+                  value={editFormData.sku} 
+                  disabled // SKU biasanya tidak diubah agar data transaksi tidak rusak
+                />
               </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-slate-700">Nama Produk</label>
+                <input 
+                  required 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-slate-900 font-medium" 
+                  value={editFormData.name} 
+                  onChange={e => setEditFormData({...editFormData, name: e.target.value})} 
+                />
+              </div>
+            </div>
+          </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase">Harga Jual (Rp)</label>
-                  <input required type="number" className="w-full mt-1 px-4 py-2 border border-slate-300 rounded-lg bg-white" value={editFormData.price} onChange={e => setEditFormData({...editFormData, price: e.target.value})} />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase">Harga Pokok (Rp)</label>
-                  <input required type="number" className="w-full mt-1 px-4 py-2 border border-slate-300 rounded-lg bg-white" value={editFormData.costPrice} onChange={e => setEditFormData({...editFormData, costPrice: e.target.value})} />
-                </div>
+          {/* SEKSI 2: HARGA & KATEGORI */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-blue-600">
+               <TrendingUp className="w-4 h-4" />
+               <span className="text-xs font-bold uppercase tracking-wider">Harga & Klasifikasi</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-slate-700">Harga Jual (Rp)</label>
+                <input 
+                  required type="number" 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-all text-slate-900 font-bold" 
+                  value={editFormData.price} 
+                  onChange={e => setEditFormData({...editFormData, price: e.target.value})} 
+                />
               </div>
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-slate-700">Harga Pokok (Rp)</label>
+                <input 
+                  required type="number" 
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-all text-slate-900 font-bold" 
+                  value={editFormData.costPrice} 
+                  onChange={e => setEditFormData({...editFormData, costPrice: e.target.value})} 
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-sm font-semibold text-slate-700">UUID Kategori</label>
+              <input 
+                required 
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl bg-slate-50 font-mono text-xs text-blue-700" 
+                value={editFormData.categoryId} 
+                onChange={e => setEditFormData({...editFormData, categoryId: e.target.value})} 
+              />
+            </div>
+          </div>
 
-              <div>
-                <label className="text-xs font-bold text-slate-500 uppercase">ID Kategori</label>
-                <input required className="w-full mt-1 px-4 py-2 border border-slate-300 rounded-lg font-mono text-xs bg-slate-50" value={editFormData.categoryId} onChange={e => setEditFormData({...editFormData, categoryId: e.target.value})} />
-              </div>
-
-              <div className="flex gap-3 pt-4">
-                 <Button variant="ghost" onClick={() => setIsEditModalOpen(false)} className="flex-1">Batal</Button>
-                 <Button type="submit" className="flex-1 font-bold py-4" disabled={isSubmitting}>
-                   {isSubmitting ? <Loader2 className="animate-spin" /> : "Simpan Perubahan"}
-                 </Button>
-              </div>
-            </form>
+          {/* TIPS INFORMASI */}
+          <div className="p-4 bg-blue-50 rounded-xl border border-blue-100 flex items-start gap-3">
+             <AlertCircle className="w-5 h-5 text-blue-500 mt-0.5" />
+             <p className="text-xs text-blue-700 leading-relaxed">
+               Mengubah harga jual akan langsung memengaruhi perhitungan di Dashboard secara real-time. Pastikan data sudah benar sebelum menyimpan.
+             </p>
           </div>
         </div>
-      )}
+        
+        {/* Footer Modal */}
+        <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-4">
+           <Button 
+            type="button"
+            variant="ghost" 
+            onClick={() => setIsEditModalOpen(false)} 
+            className="flex-1 py-4 border border-slate-200 hover:bg-white"
+          >
+            Batal
+          </Button>
+           <Button 
+            type="submit" 
+            className="flex-1 font-bold py-4 shadow-blue-600/20 shadow-lg bg-blue-600 hover:bg-blue-700" 
+            disabled={isSubmitting}
+          >
+             {isSubmitting ? (
+               <div className="flex items-center justify-center gap-2"><Loader2 className="animate-spin w-5 h-5" /> Memproses...</div>
+             ) : (
+               "Simpan Perubahan"
+             )}
+           </Button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
     </div>
   );
 }
