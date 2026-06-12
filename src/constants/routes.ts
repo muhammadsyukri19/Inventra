@@ -24,6 +24,7 @@ export const ROUTES = {
   TRANSACTION_DETAIL: (id: string) => `/transactions/${id}`,
   TRANSACTION_IN: '/transactions/in',
   TRANSACTION_OUT: '/transactions/out',
+  TASKS: '/tasks',
   ANALYTICS: '/analytics',
   RECOMMENDATIONS: '/recommendations',
   NOTIFICATIONS: '/notifications',

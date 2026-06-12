@@ -21,6 +21,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'inventory',
     'inventory-audit',
     'transactions',
+    'tasks',
     'analytics',
     'recommendations',
     'notifications',
@@ -33,6 +34,7 @@ export const ROLE_PERMISSIONS: Record<UserRole, string[]> = {
     'inventory',
     'inventory-audit',
     'transactions',
+    'tasks',
     'notifications',
   ],
   owner: [

@@ -17,6 +17,7 @@ import {
   Bell,
   Users,
   Search,
+  ClipboardList,
   ChevronLeft,
   Package as Logo,
   LogOut,
@@ -58,6 +59,7 @@ const NAV_SECTIONS: { title: string; items: NavItem[] }[] = [
       { key: 'inventory', label: 'Inventori', href: ROUTES.INVENTORY, icon: <Warehouse className="h-5 w-5" /> },
       { key: 'inventory-audit', label: 'Audit Stok', href: ROUTES.INVENTORY_AUDIT, icon: <Search className="h-5 w-5" /> },
       { key: 'transactions', label: 'Transaksi', href: ROUTES.TRANSACTIONS, icon: <ArrowLeftRight className="h-5 w-5" /> },
+      { key: 'tasks', label: 'Tugas Gudang', href: ROUTES.TASKS, icon: <ClipboardList className="h-5 w-5" /> },
     ],
   },
   {

@@ -127,9 +127,12 @@ export default function Page() {
             Kelola stok masuk/keluar dengan validasi otomatis
           </Typography>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Link href={ROUTES.TRANSACTION_RECEIVE}>
             <Button size="sm" variant="secondary">Terima Barang</Button>
+          </Link>
+          <Link href={ROUTES.TASKS}>
+            <Button size="sm" variant="ghost">Tugas Gudang</Button>
           </Link>
         </div>
       </div>
