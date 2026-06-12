@@ -90,35 +90,43 @@ export class RecommendationService {
             priority = RecommendationPriority.MEDIUM;
           }
 
-          // Simpan atau update ke database
-          await prisma.restockRecommendation.upsert({
+          // Simpan atau update ke database — cari dulu apakah sudah ada rekomendasi PENDING
+          const existingPending = await prisma.restockRecommendation.findFirst({
             where: {
-              // Kita asumsikan 1 rekomendasi per produk yang aktif
-              id: await this.getPendingRecommendationId(product.id) || 'new-record',
-            },
-            update: {
-              currentStock: inventory.currentStock,
-              reorderPoint,
-              safetyStock,
-              averageDailySales,
-              recommendedQuantity,
-              leadTimeDays,
-              priority,
-              updatedAt: new Date(),
-            },
-            create: {
               productId: product.id,
-              currentStock: inventory.currentStock,
-              reorderPoint,
-              safetyStock,
-              averageDailySales,
-              recommendedQuantity,
-              leadTimeDays,
-              priority,
               status: RecommendationStatus.PENDING,
             },
           });
-          
+
+          if (existingPending) {
+            await prisma.restockRecommendation.update({
+              where: { id: existingPending.id },
+              data: {
+                currentStock: inventory.currentStock,
+                reorderPoint,
+                safetyStock,
+                averageDailySales,
+                recommendedQuantity,
+                leadTimeDays,
+                priority,
+              },
+            });
+          } else {
+            await prisma.restockRecommendation.create({
+              data: {
+                productId: product.id,
+                currentStock: inventory.currentStock,
+                reorderPoint,
+                safetyStock,
+                averageDailySales,
+                recommendedQuantity,
+                leadTimeDays,
+                priority,
+                status: RecommendationStatus.PENDING,
+              },
+            });
+          }
+
           generatedCount++;
         }
       }
@@ -132,20 +140,10 @@ export class RecommendationService {
     }
   }
 
-  private async getPendingRecommendationId(productId: string): Promise<string | undefined> {
-    const existing = await prisma.restockRecommendation.findFirst({
-      where: {
-        productId,
-        status: RecommendationStatus.PENDING,
-      },
-    });
-    return existing?.id;
-  }
-
-  async getRecommendations() {
+  async getRecommendations(status?: RecommendationStatus) {
     return prisma.restockRecommendation.findMany({
       where: {
-        status: RecommendationStatus.PENDING,
+        status: status ?? RecommendationStatus.PENDING,
       },
       include: {
         product: {

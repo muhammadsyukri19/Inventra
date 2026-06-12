@@ -5,15 +5,16 @@ import { logger } from '../utils/logger';
 const recommendationService = new RecommendationService();
 
 export const initCronJobs = () => {
-  // Menjalankan cron job setiap jam 00:00 (Tengah malam)
-  // Format: 'menit jam hari bulan hari-dalam-minggu'
-  cron.schedule('0 0 * * *', async () => {
+  // Menjalankan cron job setiap jam 02:00 WIB (Asia/Jakarta)
+  cron.schedule('0 2 * * *', async () => {
     logger.info('Cron Job: Executing nightly AI Predictive Analytics...');
     try {
       await recommendationService.generateRecommendations();
     } catch (error) {
       logger.error('Cron Job Failed:', error);
     }
+  }, {
+    timezone: 'Asia/Jakarta',
   });
 
   logger.info('Cron jobs initialized: Nightly AI Predictive Analytics scheduled.');

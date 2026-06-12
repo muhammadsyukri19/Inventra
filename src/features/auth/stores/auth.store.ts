@@ -1,37 +1,39 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { User } from '@/types/common.types';
 
 /**
  * Auth store (Zustand).
  *
- * Manages authentication state with persistent storage.
- * Stores user info and tokens in localStorage.
+ * Manages authentication state with persistent storage in localStorage.
+ * Provides actions for setting, refreshing, and clearing auth state.
  */
 
+export interface AuthUser {
+  id: string;
+  email: string;
+  name: string;
+  username: string;
+  role: string; // 'admin' | 'staff_gudang' | 'owner'
+}
+
 interface AuthState {
-  user: User | null;
+  user: AuthUser | null;
   accessToken: string | null;
   refreshToken: string | null;
   isAuthenticated: boolean;
-}
-
-interface AuthActions {
-  setAuth: (user: User, accessToken: string, refreshToken: string) => void;
+  setAuth: (user: AuthUser, accessToken: string, refreshToken: string) => void;
   setTokens: (accessToken: string, refreshToken: string) => void;
   clearAuth: () => void;
 }
 
-type AuthStore = AuthState & AuthActions;
-
-const initialState: AuthState = {
+const initialState = {
   user: null,
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
-};
+} satisfies Omit<AuthState, 'setAuth' | 'setTokens' | 'clearAuth'>;
 
-export const useAuthStore = create<AuthStore>()(
+export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       ...initialState,

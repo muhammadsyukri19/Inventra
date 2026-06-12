@@ -136,9 +136,10 @@ model Product {
   costPrice   Decimal  @map("cost_price") @db.Decimal(12, 2)
   categoryId  String   @map("category_id")
   supplierId  String?  @map("supplier_id")
-  unit        String   @default("pcs")
-  imageUrl    String?  @map("image_url")
-  isActive    Boolean  @default(true) @map("is_active")
+  unit         String   @default("pcs")
+  imageUrl     String?  @map("image_url")
+  rackLocation String?  @map("rack_location") @db.VarChar(50)
+  isActive     Boolean  @default(true) @map("is_active")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 

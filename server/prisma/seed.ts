@@ -57,11 +57,9 @@ async function main(): Promise<void> {
   // ========================================================================
 
   const adminRole = roles.find((r) => r.name === 'admin');
-  const staffRole = roles.find((r) => r.name === 'staff_gudang');
-  const ownerRole = roles.find((r) => r.name === 'owner');
 
-  if (!adminRole || !staffRole || !ownerRole) {
-    throw new Error('Failed to find created roles');
+  if (!adminRole) {
+    throw new Error('Failed to find created admin role');
   }
 
   const hashedPassword = await bcrypt.hash('password123', SALT_ROUNDS);
@@ -131,41 +129,6 @@ async function main(): Promise<void> {
   ]);
 
   console.log(`✅ Categories created: ${categories.map((c) => c.name).join(', ')}`);
-
-  // ========================================================================
-  // 4. CREATE SAMPLE SUPPLIERS
-  // ========================================================================
-
-  const suppliers = await Promise.all([
-    prisma.supplier.upsert({
-      where: { id: 'supplier-1' },
-      update: {},
-      create: {
-        id: 'supplier-1',
-        name: 'PT Distributor Utama',
-        email: 'info@distributorutama.com',
-        phone: '021-1234567',
-        address: 'Jl. Industri No. 10, Jakarta',
-        contactPerson: 'Budi Santoso',
-        isActive: true,
-      },
-    }),
-    prisma.supplier.upsert({
-      where: { id: 'supplier-2' },
-      update: {},
-      create: {
-        id: 'supplier-2',
-        name: 'CV Sumber Jaya',
-        email: 'order@sumberjaya.com',
-        phone: '022-7654321',
-        address: 'Jl. Niaga No. 25, Bandung',
-        contactPerson: 'Siti Rahayu',
-        isActive: true,
-      },
-    }),
-  ]);
-
-  console.log(`✅ Suppliers created: ${suppliers.map((s) => s.name).join(', ')}`);
 
   console.log('\n🎉 Seeding completed successfully!');
   console.log('\n📋 Default Login Credentials:');
