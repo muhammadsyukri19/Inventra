@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient from '@/services/api-client'; // Sesuaikan path ini (tadi kamu pakai @/services/api-client)
+import apiClient from '@/services/api-client'; // Pastikan path ini benar sesuai file sebelumnya
 import { useAuthStore } from '@/features/auth/stores/auth.store';
 import type { Notification } from '../types/notification.types';
 
@@ -11,68 +11,69 @@ export const useNotifications = () => {
   const { accessToken } = useAuthStore();
   const [reconnectTrigger, setReconnectTrigger] = useState(0);
 
-  // 1. Fetch data awal - DITAMBAHKAN PENGAMAN ARRAY
+  // 1. Fetch data awal dengan pengaman yang lebih kuat
   const query = useQuery({
     queryKey: NOTIFICATIONS_QUERY_KEY,
     queryFn: async (): Promise<Notification[]> => {
       try {
         const response = await apiClient.get('/notifications');
-        // Pastikan kita mengambil bagian array-nya saja
+        
+        // PENTING: Menyesuaikan dengan helper sendSuccess (response.data.data)
         const result = response.data?.data || response.data;
-        return Array.isArray(result) ? result : [];
+        
+        const actualArray = Array.isArray(result) ? result : [];
+        console.log("HOOK: Notifikasi Berhasil Ditarik", actualArray.length, "pesan");
+        return actualArray;
       } catch (error) {
-        return []; // Jika gagal, kembalikan array kosong agar tidak crash
+        console.error("HOOK: Gagal tarik notifikasi", error);
+        return [];
       }
     },
-    enabled: !!accessToken,
+    enabled: true,
+    refetchInterval: 30000, // Cek ulang setiap 30 detik (backup jika SSE putus)
   });
 
-  // 2. Set up SSE (Real-time) - MEMAKAI TOKEN DI URL
+  // 2. Set up SSE (Real-time) dengan token di URL
   useEffect(() => {
     if (!accessToken) return;
 
     const baseURL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:5000/api/v1';
-    // Penting: Token dikirim lewat URL karena EventSource tidak bisa kirim Header
     const eventSource = new EventSource(`${baseURL}/notifications/stream?token=${accessToken}`);
 
     eventSource.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        if (data.type === 'NEW_NOTIFICATION') {
-          queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (oldData) => {
-            if (!oldData || !Array.isArray(oldData)) return [data.payload];
-            return [data.payload, ...oldData];
-          });
+        console.log("SSE: Pesan baru diterima", data);
+
+        if (data.type === 'NEW_NOTIFICATION' || data.id) {
+          // Masukkan data baru ke cache React Query agar UI otomatis update
+          queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY });
         }
       } catch (error) {
-        console.error('Error parsing SSE message', error);
+        // Abaikan jika data bukan JSON valid
       }
     };
 
-    eventSource.onerror = (error) => {
-      // Kita sembunyikan error SSE agar tidak merusak konsol saat dev
+    eventSource.onerror = () => {
       eventSource.close();
-      
-      // Coba konek ulang setelah 10 detik
-      setTimeout(() => setReconnectTrigger(prev => prev + 1), 10000);
+      // Auto-reconnect setelah 15 detik jika gagal
+      setTimeout(() => setReconnectTrigger(prev => prev + 1), 15000);
     };
 
-    return () => {
-      eventSource.close();
-    };
+    return () => eventSource.close();
   }, [accessToken, queryClient, reconnectTrigger]);
 
-  // 3. Mark single as read
+  // 3. Mark as read - Update local cache agar instan (Optimistic Update)
   const markAsReadMutation = useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiClient.patch(`/notifications/${id}/read`);
-      return response.data.data as Notification;
+      await apiClient.patch(`/notifications/${id}/read`);
+      return id;
     },
-    onSuccess: (updatedNotification) => {
+    onSuccess: (id) => {
       queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (oldData) => {
-        if (!oldData || !Array.isArray(oldData)) return [];
+        if (!oldData) return [];
         return oldData.map((notif) =>
-          notif.id === updatedNotification.id ? { ...notif, isRead: true } : notif
+          notif.id === id ? { ...notif, isRead: true } : notif
         );
       });
     },
@@ -81,18 +82,14 @@ export const useNotifications = () => {
   // 4. Mark all as read
   const markAllAsReadMutation = useMutation({
     mutationFn: async () => {
-      const response = await apiClient.patch(`/notifications/read-all`);
-      return response.data;
+      await apiClient.patch(`/notifications/read-all`);
     },
     onSuccess: () => {
-      queryClient.setQueryData<Notification[]>(NOTIFICATIONS_QUERY_KEY, (oldData) => {
-        if (!oldData || !Array.isArray(oldData)) return [];
-        return oldData.map((notif) => ({ ...notif, isRead: true }));
-      });
+      queryClient.invalidateQueries({ queryKey: NOTIFICATIONS_QUERY_KEY });
     },
   });
 
-  // --- PERBAIKAN LOGIKA UNREAD COUNT (BARIS 108) ---
+  // --- LOGIKA DATA PENGAMAN ---
   const notifications = Array.isArray(query.data) ? query.data : [];
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
