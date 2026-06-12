@@ -13,6 +13,7 @@ import productRoutes from './modules/product/product.routes';
 import inventoryRoutes from './modules/inventory/inventory.routes';
 import transactionRoutes from './modules/transaction/transaction.routes';
 import recommendationRoutes from './modules/recommendation/recommendation.routes';
+import dashboardRoutes from './modules/dashboard/dashboard.routes';
 
 import notificationRoutes from './modules/notification/notification.routes';
 
@@ -75,6 +76,8 @@ app.use(`${API_PREFIX}/transactions`, transactionRoutes);
 app.use(`${API_PREFIX}/recommendations`, recommendationRoutes);
 app.use(`${API_PREFIX}/notifications`, notificationRoutes);
 // app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);
+// app.use(`${API_PREFIX}/notifications`, notificationRoutes);
+app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);
 
 // ============================================================================
 // ERROR HANDLING
