@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { Typography } from '@/components/atoms/typography';
 import { Button } from '@/components/atoms/button';
 import { SmartScanner } from '@/components/organisms/smart-scanner';
@@ -8,6 +9,7 @@ import { CheckCircle2, Loader2, AlertCircle, Package, Info } from 'lucide-react'
 import { inventoryService } from '@/features/inventory/services/inventory.service';
 import apiClient from '@/services/api-client';
 import { API_ENDPOINTS } from '@/constants/api-endpoints';
+import { ROUTES } from '@/constants/routes';
 
 export default function Page() {
   const [mounted, setMounted] = useState(false);
@@ -118,11 +120,18 @@ export default function Page() {
 
   return (
     <div className="space-y-6 animate-fade-in p-6 max-w-4xl mx-auto">
-      <div className="flex flex-col gap-1">
-        <Typography variant="h1" className="text-slate-900">Transaksi Baru</Typography>
-        <Typography variant="body" color="secondary">
-          Kelola stok masuk/keluar dengan validasi otomatis
-        </Typography>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1">
+          <Typography variant="h1" className="text-slate-900">Transaksi Baru</Typography>
+          <Typography variant="body" color="secondary">
+            Kelola stok masuk/keluar dengan validasi otomatis
+          </Typography>
+        </div>
+        <div className="flex gap-2">
+          <Link href={ROUTES.TRANSACTION_RECEIVE}>
+            <Button size="sm" variant="secondary">Terima Barang</Button>
+          </Link>
+        </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

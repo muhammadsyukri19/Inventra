@@ -20,6 +20,7 @@ export const ROUTES = {
   INVENTORY_AUDIT: '/inventory/audit',
   TRANSACTIONS: '/transactions',
   TRANSACTION_CREATE: '/transactions/create',
+  TRANSACTION_RECEIVE: '/transactions/receive',
   TRANSACTION_DETAIL: (id: string) => `/transactions/${id}`,
   TRANSACTION_IN: '/transactions/in',
   TRANSACTION_OUT: '/transactions/out',
