@@ -102,17 +102,41 @@ export default function DashboardPage() {
         </Card>
 
         {/* 3. PERINGATAN STOK */}
-        <Card padding="md" className="bg-white border border-slate-200 shadow-sm">
-          <Typography variant="h3" className="text-slate-800">Peringatan Stok</Typography>
-          {Number(summary?.lowStockCount) > 0 ? (
-            <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-3 text-orange-800">
-              <AlertTriangle className="text-orange-500 w-5 h-5 mt-0.5" />
-              <span className="text-sm font-medium">
-                Ada <strong>{safeVal(summary?.lowStockCount)}</strong> produk yang stoknya hampir habis!
-              </span>
+        <Card padding="md" className="bg-white border border-slate-200">
+          <Typography variant="h3" className="text-slate-800 font-bold">Peringatan Stok</Typography>
+          <Typography variant="body" color="secondary" className="mb-4">Produk yang perlu diperhatikan segera</Typography>
+          
+          {/* PERBAIKAN LOGIKA: Cek lowStockCount ATAU outOfStockCount */}
+          {(Number(summary?.lowStockCount) > 0 || Number(summary?.outOfStockCount) > 0) ? (
+            <div className="space-y-3 mt-4">
+              {/* Pesan Stok Habis (Merah) */}
+              {Number(summary?.outOfStockCount) > 0 && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3 text-red-800 animate-pulse">
+                  <XCircle className="text-red-500 w-5 h-5 mt-0.5" />
+                  <span className="text-sm font-medium">
+                    Ada <strong>{summary.outOfStockCount}</strong> produk yang sudah <strong>HABIS!</strong> segera restock.
+                  </span>
+                </div>
+              )}
+
+              {/* Pesan Stok Kritis (Oranye) */}
+              {Number(summary?.lowStockCount) > 0 && (
+                <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-start gap-3 text-orange-800">
+                  <AlertTriangle className="text-orange-500 w-5 h-5 mt-0.5" />
+                  <span className="text-sm font-medium">
+                    Ada <strong>{summary.lowStockCount}</strong> produk yang stoknya hampir habis.
+                  </span>
+                </div>
+              )}
             </div>
           ) : (
-            <EmptyState icon={<AlertTriangle className="h-12 w-12 text-slate-100" />} title="Kondisi Aman" description="Semua stok saat ini tercukupi" className="mt-6" />
+            /* TAMPILAN JIKA SEMUA BENAR-BENAR AMAN */
+            <EmptyState
+              icon={<AlertTriangle className="h-12 w-12 text-slate-100" />}
+              title="Kondisi Aman"
+              description="Semua stok saat ini tercukupi"
+              className="mt-6"
+            />
           )}
         </Card>
       </div>
