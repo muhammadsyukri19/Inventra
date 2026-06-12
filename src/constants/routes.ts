@@ -17,6 +17,7 @@ export const ROUTES = {
   SUPPLIERS: '/suppliers',
   SUPPLIER_DETAIL: (id: string) => `/suppliers/${id}`,
   INVENTORY: '/inventory',
+  INVENTORY_AUDIT: '/inventory/audit',
   TRANSACTIONS: '/transactions',
   TRANSACTION_CREATE: '/transactions/create',
   TRANSACTION_DETAIL: (id: string) => `/transactions/${id}`,
