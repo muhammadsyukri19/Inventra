@@ -198,18 +198,25 @@ export default function ProductsPage() {
     {
       key: 'price',
       header: 'Harga Jual',
-      render: (row: any) => (
-        <span className="text-slate-900 font-bold">
-          Rp{Number(row.price).toLocaleString('id-ID')}
-        </span>
-      )
+      render: (row: any) => {
+        const price = Number(row.price);
+        // Cek jika harga valid, jika tidak tampilkan 0
+        const displayPrice = isNaN(price) ? 0 : price;
+        return <span className="text-slate-900">Rp{displayPrice.toLocaleString('id-ID')}</span>
+      }
     },
     {
       key: 'inventory',
       header: 'Stok',
       render: (row: any) => {
-        const stock = row.inventory?.currentStock ?? 0;
-        return <Badge variant={stock <= 5 ? 'danger' : 'success'}>{stock} {row.unit || 'pcs'}</Badge>;
+        // Cek jika stok valid
+        const stock = Number(row.inventory?.currentStock);
+        const safeStock = isNaN(stock) ? 0 : stock;
+        return (
+          <Badge variant={safeStock <= 5 ? 'danger' : 'success'}>
+            {safeStock} {row.unit || 'pcs'}
+          </Badge>
+        );
       }
     },
     {

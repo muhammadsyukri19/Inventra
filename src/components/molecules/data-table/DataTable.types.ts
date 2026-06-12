@@ -4,7 +4,7 @@ export interface ColumnDef<T> {
   /** Header label */
   header: React.ReactNode;
   /** Custom render function for the cell */
-  render?: (row: T) => React.ReactNode;
+  render?: (row: T, index?: number) => React.ReactNode;
   /** Custom class for the column */
   className?: string;
   /** Optional fixed width */

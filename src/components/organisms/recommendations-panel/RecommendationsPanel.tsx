@@ -16,10 +16,13 @@ export const RecommendationsPanel = ({ data }: { data?: any[] }) => {
             <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
               <ArrowUpCircle className="w-5 h-5" />
             </div>
-            <div>
-              <p className="text-sm font-bold text-slate-800">{item.product.name}</p>
-              <p className="text-xs text-slate-500">Stok: {item.currentStock} {item.product.unit}</p>
-            </div>
+              <div>
+                <p className="text-sm font-bold text-slate-800">{item.product.name}</p>
+                {/* Gunakan Number() dan fallback 0 */}
+                <p className="text-xs text-slate-500">
+                  Stok: {Number(item.currentStock) || 0} {item.product.unit}
+                </p>
+              </div>
           </div>
           <Badge variant="warning">Restock Segera</Badge>
         </div>

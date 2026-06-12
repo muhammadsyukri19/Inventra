@@ -50,7 +50,11 @@ export class CategoryService {
   /**
    * Create a new category
    */
-  async create(data: CreateCategoryPayload) {
+  async create(payload: CreateCategoryPayload) {
+    // --- PERBAIKAN: NORMALISASI DATA (Agar data.name tidak undefined) ---
+    const data = (payload as any).body ? (payload as any).body : payload;
+    // --------------------------------------------------------------------
+
     const existing = await prisma.category.findUnique({
       where: { name: data.name },
     });
@@ -59,13 +63,22 @@ export class CategoryService {
       throw new ConflictError('Kategori dengan nama tersebut sudah ada');
     }
 
-    return prisma.category.create({ data });
+    return prisma.category.create({ 
+      data: {
+        name: data.name,
+        description: data.description
+      } 
+    });
   }
 
   /**
    * Update an existing category
    */
-  async update(id: string, data: UpdateCategoryPayload) {
+  async update(id: string, payload: UpdateCategoryPayload) {
+    // --- PERBAIKAN: NORMALISASI DATA (Agar data.name tidak undefined) ---
+    const data = (payload as any).body ? (payload as any).body : payload;
+    // --------------------------------------------------------------------
+
     await this.findById(id);
 
     if (data.name) {
@@ -80,7 +93,10 @@ export class CategoryService {
 
     return prisma.category.update({
       where: { id },
-      data,
+      data: {
+        name: data.name,
+        description: data.description
+      },
     });
   }
 

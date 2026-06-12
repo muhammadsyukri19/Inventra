@@ -79,7 +79,7 @@ export function DataTable<T>({
                       className={cn('px-4 py-3', column.className)}
                     >
                       {column.render
-                        ? column.render(row)
+                        ? column.render(row, rowIndex)
                         : (row[column.key as keyof T] as React.ReactNode)}
                     </td>
                   ))}
