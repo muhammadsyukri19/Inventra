@@ -17,6 +17,7 @@ import dashboardRoutes from './modules/dashboard/dashboard.routes';
 import notificationRoutes from './modules/notification/notification.routes';
 import analyticsRoutes from './modules/analytics/analytics.routes';
 
+
 /**
  * Express application factory.
  *

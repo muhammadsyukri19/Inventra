@@ -125,14 +125,11 @@ export class TransactionService {
    */
   async create(payload: CreateTransactionPayload, userId: string) {
     // --- PERBAIKAN: NORMALISASI DATA DARI MIDDLEWARE VALIDASI ---
-    // Jika data dibungkus dalam properti 'body' oleh Zod, kita keluarkan isinya.
     const data = (payload as any).body ? (payload as any).body : payload;
 
-    // Pastikan items ada sebelum diproses (mencegah error .map() undefined)
     if (!data.items || !Array.isArray(data.items)) {
       throw new BadRequestError('Daftar item produk (items) tidak valid atau kosong');
     }
-    // -------------------------------------------------------------
 
     // Basic validation to check for duplicates in the items list
     const productIds = data.items.map((i: any) => i.productId);
@@ -224,7 +221,6 @@ export class TransactionService {
             }
           });
         } else {
-          // Fallback if inventory record didn't exist for some reason
           await tx.inventory.create({
             data: {
               productId: product.id,
@@ -233,6 +229,21 @@ export class TransactionService {
             }
           });
         }
+
+        // --- FITUR BARU: TRIGGER NOTIFIKASI OTOMATIS ---
+        if (stockAfter <= 5) {
+          await tx.notification.create({
+            data: {
+              userId: userId,
+              type: stockAfter === 0 ? 'STOCK_EMPTY' : 'STOCK_CRITICAL',
+              title: stockAfter === 0 ? '🚫 Stok Habis!' : '⚠️ Stok Kritis',
+              message: `Produk ${product.name} (SKU: ${product.sku}) kini tersisa ${stockAfter} ${product.unit}. Harap segera melakukan pengadaan kembali.`,
+              referenceId: product.id,
+              isRead: false
+            }
+          });
+        }
+        // -----------------------------------------------
 
         // Create stock movement
         await tx.stockMovement.create({

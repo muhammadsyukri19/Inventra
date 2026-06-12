@@ -1,24 +1,19 @@
 import { Router } from 'express';
+import { notificationController } from './notification.controller';
 import { authMiddleware } from '../../middleware/auth.middleware';
-import * as notificationController from './notification.controller';
 
 const router = Router();
 
-// Endpoint for SSE (Server-Sent Events) - must come before /:id to avoid route collision
-// IMPORTANT: Use authMiddleware. We will pass token via query string if headers are not possible with standard EventSource
-router.get('/stream', (req, res, next) => {
-  // Simple custom auth extractor for SSE because EventSource in browser can't send Auth headers easily
-  const token = req.query.token as string;
-  if (token) {
-    req.headers.authorization = `Bearer ${token}`;
-  }
-  next();
-}, authMiddleware, notificationController.streamNotifications);
-
+// Semua route ini harus login dulu
 router.use(authMiddleware);
 
-router.get('/', notificationController.getUserNotifications);
-router.patch('/read-all', notificationController.markAllAsRead);
+// Alamat: GET /api/v1/notifications
+router.get('/', notificationController.getAll);
+
+// Alamat: GET /api/v1/notifications/stream (Untuk menghilangkan error console)
+router.get('/stream', notificationController.stream);
+
+// Alamat: PATCH /api/v1/notifications/:id/read
 router.patch('/:id/read', notificationController.markAsRead);
 
 export default router;

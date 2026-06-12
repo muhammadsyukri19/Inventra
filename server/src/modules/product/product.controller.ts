@@ -44,16 +44,17 @@ export class ProductController {
 
   async validateBySku(req: Request, res: Response, next: NextFunction) {
     try {
-      const { code } = req.params; // Mengambil kode dari URL /products/validate/:code
+      const { code } = req.params;
       
-      const product = await productService.findBySku(req.params.code as string);
+      // Ambil data produk dari service
+      const product = await productService.findBySku(code as string);
       
-      sendSuccess(res, {
-        data: product,
-        message: 'Produk ditemukan dan valid',
-      });
+      // PERBAIKAN: Langsung kirim 'product', jangan dibungkus { data: product }
+      // Supaya hasilnya tidak bertumpuk jadi response.data.data.data
+      sendSuccess(res, product); 
+      
     } catch (error) {
-      next(error); // Error 404 jika tidak ditemukan akan ditangani global error handler
+      next(error);
     }
   }
 
