@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import apiClient from '@/services/api-client';
+import { API_ENDPOINTS } from '@/constants/api-endpoints';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -40,7 +41,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const { data } = await apiClient.get('/api/v1/users/roles');
+        const { data } = await apiClient.get(API_ENDPOINTS.USERS_ROLES);
         // Filter out admin so users cannot register as admin directly
         setRoles(data.data.filter((r: any) => r.name !== 'admin'));
       } catch (error) {

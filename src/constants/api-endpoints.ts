@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
 
   // ── Users ─────────────────────────────────────────────────────────────────
   USERS: `${BASE_URL}/users`,
+  USERS_ROLES: `${BASE_URL}/users/roles`,
   USER_DETAIL: (id: string) => `${BASE_URL}/users/${id}`,
   USER_APPROVE: (id: string) => `${BASE_URL}/users/${id}/approve`,
   USER_REJECT: (id: string) => `${BASE_URL}/users/${id}/reject`,
