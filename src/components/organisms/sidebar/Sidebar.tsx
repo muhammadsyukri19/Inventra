@@ -135,7 +135,7 @@ export function Sidebar() {
             )}
             <ul className="space-y-1">
               {section.items.map((item) => {
-                const isActive = pathname.startsWith(item.href);
+                const isActive = pathname === item.href;
                 return (
                   <li key={item.key}>
                     <Link
