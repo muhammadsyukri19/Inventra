@@ -31,11 +31,20 @@ export class InventoryService {
       if (stockStatus === 'out') {
         where.currentStock = 0;
       } else if (stockStatus === 'low') {
-        // Prisma can't directly compare two fields in a simple where clause without executing raw
-        // But for low stock, it means 0 < currentStock <= reorderPoint
-        // We'll have to use raw query or handle differently if strictly needed.
-        // For simplicity, we assume frontend provides a pre-filtered low stock via product list.
-        // We will just return all here and let frontend filter, OR use prisma.$queryRaw for advanced filtering.
+        // Prisma cannot compare two columns directly in a where clause,
+        // so we use $queryRaw to find product IDs where 0 < current_stock <= reorder_point
+        const lowStockProductIds = await prisma.$queryRaw<{ product_id: string }[]>`
+          SELECT product_id FROM inventories
+          WHERE current_stock > 0 AND current_stock <= reorder_point
+        `;
+        where.productId = { in: lowStockProductIds.map(r => r.product_id) };
+      } else if (stockStatus === 'safe') {
+        // Safe stock means current_stock > reorder_point
+        const safeProductIds = await prisma.$queryRaw<{ product_id: string }[]>`
+          SELECT product_id FROM inventories
+          WHERE current_stock > reorder_point
+        `;
+        where.productId = { in: safeProductIds.map(r => r.product_id) };
       }
     }
 

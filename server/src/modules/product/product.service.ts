@@ -7,7 +7,7 @@ export class ProductService {
   /**
    * Helper to format product response, converting Decimal to number
    */
-  private formatProductResponse(product: any): ProductResponse {
+  private formatProductResponse(product: ProductResponse & { price: unknown; costPrice: unknown }): ProductResponse {
     return {
       ...product,
       price: Number(product.price),
@@ -47,9 +47,17 @@ export class ProductService {
       if (stockStatus === 'out') {
         where.inventory = { currentStock: 0 };
       } else if (stockStatus === 'low') {
-        where.inventory = { currentStock: { gt: 0, lte: prisma.inventory.fields.reorderPoint } };
+        const lowStockIds = await prisma.$queryRaw<{ product_id: string }[]>`
+          SELECT product_id FROM inventories
+          WHERE current_stock > 0 AND current_stock <= reorder_point
+        `;
+        where.id = { in: lowStockIds.map((r) => r.product_id) };
       } else if (stockStatus === 'safe') {
-        where.inventory = { currentStock: { gt: prisma.inventory.fields.reorderPoint } };
+        const safeIds = await prisma.$queryRaw<{ product_id: string }[]>`
+          SELECT product_id FROM inventories
+          WHERE current_stock > reorder_point
+        `;
+        where.id = { in: safeIds.map((r) => r.product_id) };
       }
     }
 

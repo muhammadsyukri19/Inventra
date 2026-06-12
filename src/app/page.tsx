@@ -53,13 +53,13 @@ export default function LandingPage() {
               <span className="flex h-2 w-2 rounded-full bg-primary-600 animate-pulse"></span>
               Sistem Manajemen Inventaris Generasi Baru
             </div>
-            <Typography variant="h1" className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-6 animate-slide-up" style={{ animationDelay: '100ms' }}>
+            <Typography variant="h1" className="text-5xl sm:text-6xl md:text-7xl font-extrabold text-gray-900 tracking-tight mb-6 animate-slide-up">
               Kelola Stok <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-primary-400">Lebih Cerdas</span> dengan AI
             </Typography>
-            <Typography variant="body" className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '200ms' }}>
+            <Typography variant="body" className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto animate-slide-up">
               Inventra memadukan Analitik Prediktif dan Identifikasi Visual untuk mengotomatisasi restock barang, mengurangi risiko kehabisan stok, dan meningkatkan efisiensi operasional bisnis Anda.
             </Typography>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up" style={{ animationDelay: '300ms' }}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up">
               <Link href="/register">
                 <Button variant="primary" size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-xl shadow-lg shadow-primary-500/30 hover:shadow-primary-500/40 transition-all duration-300">
                   Mulai Gratis <ArrowRight className="ml-2 h-5 w-5" />
@@ -86,7 +86,7 @@ export default function LandingPage() {
               </Typography>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {/* Feature 1 */}
               <FeatureCard
                 icon={<BrainCircuit className="h-8 w-8 text-primary-600" />}
@@ -127,6 +127,29 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Statistics / Social Proof Section */}
+        <section className="py-16 bg-primary-50">
+          <div className="container mx-auto px-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+              <StatItem
+                value="99%"
+                subtitle="Akurasi Stok"
+                description="Data inventaris selalu tepat dengan prediksi AI"
+              />
+              <StatItem
+                value="3 Role"
+                subtitle="Pengguna Sistem"
+                description="Admin, Staff Gudang, dan Owner"
+              />
+              <StatItem
+                value="Real-time"
+                subtitle="Analytics"
+                description="Dashboard diperbarui secara langsung"
+              />
+            </div>
+          </div>
+        </section>
+
         {/* CTA Section */}
         <section className="py-20 bg-primary-900 text-white">
           <div className="container mx-auto px-6 text-center max-w-3xl">
@@ -136,11 +159,18 @@ export default function LandingPage() {
             <Typography variant="body" className="text-primary-200 mb-10 text-lg">
               Tingkatkan akurasi stok hingga 99% dan hindari kerugian akibat overstock atau stockout. Bergabunglah dengan Inventra hari ini.
             </Typography>
-            <Link href="/register">
-              <Button size="lg" className="bg-white text-primary-900 hover:bg-gray-10 text-lg px-10 py-6 rounded-xl font-bold shadow-xl">
-                Daftar Sekarang — Gratis
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/register">
+                <Button size="lg" className="bg-white text-primary-900 hover:bg-gray-100 text-lg px-10 py-6 rounded-xl font-bold shadow-xl">
+                  Mulai Gratis
+                </Button>
+              </Link>
+              <Link href={ROUTES.LOGIN}>
+                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 text-lg px-10 py-6 rounded-xl font-bold">
+                  Login ke Dashboard
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
       </main>
@@ -155,7 +185,7 @@ export default function LandingPage() {
             </Typography>
           </div>
           <Typography variant="body-sm" className="text-gray-500">
-            © 2026 Sistem Manajemen Inventaris Berbasis AI — Hak Cipta Dilindungi.
+            © 2026 INVENTRA — Sistem Manajemen Inventaris Berbasis AI
           </Typography>
         </div>
       </footer>
@@ -163,6 +193,11 @@ export default function LandingPage() {
   );
 }
 
+/**
+ * FeatureCard
+ *
+ * Menampilkan satu kartu fitur unggulan Inventra dengan ikon, judul, dan deskripsi.
+ */
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
     <Card className="p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border border-gray-100 bg-white">
@@ -176,5 +211,26 @@ function FeatureCard({ icon, title, description }: { icon: React.ReactNode; titl
         {description}
       </Typography>
     </Card>
+  );
+}
+
+/**
+ * StatItem
+ *
+ * Menampilkan satu item statistik/social proof dengan nilai besar, subtitle, dan deskripsi.
+ */
+function StatItem({ value, subtitle, description }: { value: string; subtitle: string; description: string }) {
+  return (
+    <div className="text-center px-4">
+      <Typography variant="h1" className="text-5xl font-extrabold text-primary-700 mb-2">
+        {value}
+      </Typography>
+      <Typography variant="h3" className="text-lg font-bold text-gray-900 mb-2">
+        {subtitle}
+      </Typography>
+      <Typography variant="body-sm" className="text-gray-600">
+        {description}
+      </Typography>
+    </div>
   );
 }
