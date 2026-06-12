@@ -35,7 +35,21 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      // Jika development atau CORS_ORIGIN '*', izinkan secara dinamis agar kompatibel dengan credentials: true
+      if (!origin || env.CORS_ORIGIN === '*' || env.NODE_ENV === 'development') {
+        callback(null, true);
+      } else {
+        // Bersihkan trailing slash jika ada
+        const cleanConfigured = env.CORS_ORIGIN.replace(/\/$/, '');
+        const cleanOrigin = origin.replace(/\/$/, '');
+        if (cleanOrigin === cleanConfigured) {
+          callback(null, true);
+        } else {
+          callback(null, false);
+        }
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
