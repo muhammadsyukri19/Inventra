@@ -26,10 +26,43 @@ export class AnalyticsController {
 
       const data = await analyticsService.getDashboardData(targetRole);
 
-      sendSuccess(res, {
-        data,
-        message: `Berhasil memuat data analitik untuk role ${targetRole}`,
-      });
+      sendSuccess(res, data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get Owner (BI & Predictive Analytics) dashboard data
+   */
+  async getOwnerDashboard(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await analyticsService.getDashboardData('owner');
+      sendSuccess(res, data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get Staff (Warehouse Operations & Stock Health) dashboard data
+   */
+  async getStaffDashboard(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await analyticsService.getDashboardData('staff_gudang');
+      sendSuccess(res, data);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * Get Admin (Auditing & System Health) dashboard data
+   */
+  async getAdminDashboard(req: Request, res: Response, next: NextFunction) {
+    try {
+      const data = await analyticsService.getDashboardData('admin');
+      sendSuccess(res, data);
     } catch (error) {
       next(error);
     }
@@ -37,3 +70,4 @@ export class AnalyticsController {
 }
 
 export const analyticsController = new AnalyticsController();
+

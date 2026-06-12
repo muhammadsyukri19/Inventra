@@ -26,6 +26,11 @@ interface AdminDashboardProps {
 }
 
 export function AdminDashboard({ data }: AdminDashboardProps) {
+  // Defensive check during role transitions
+  if (!data || !data.userActivity) {
+    return null;
+  }
+
   const { metrics, userActivity, logs } = data;
 
   const formatDate = (dateStr: string) => {
@@ -37,15 +42,6 @@ export function AdminDashboard({ data }: AdminDashboardProps) {
 
   return (
     <div className="space-y-6">
-      {/* ── SECTION HEADER ─────────────────────────────────────────────────── */}
-      <div>
-        <Typography variant="h2" weight="bold">
-          System Auditing & Activity logs
-        </Typography>
-        <Typography variant="body-sm" color="tertiary" className="mt-0.5">
-          Pemantauan kontribusi transaksi pengguna, persetujuan akun, dan kesehatan sistem.
-        </Typography>
-      </div>
 
       {/* ── METRICS GRID ──────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

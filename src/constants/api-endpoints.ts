@@ -63,6 +63,10 @@ export const API_ENDPOINTS = {
   ANALYTICS_TOP_PRODUCTS: `${BASE_URL}/analytics/top-products`,
   ANALYTICS_STOCK_HEALTH: `${BASE_URL}/analytics/stock-health`,
   ANALYTICS_DASHBOARD_ROLE: `${BASE_URL}/analytics/dashboard-role`,
+  ANALYTICS_DASHBOARD_OWNER: `${BASE_URL}/analytics/dashboard/owner`,
+  ANALYTICS_DASHBOARD_STAFF: `${BASE_URL}/analytics/dashboard/staff`,
+  ANALYTICS_DASHBOARD_ADMIN: `${BASE_URL}/analytics/dashboard/admin`,
+
   /** @deprecated Use ANALYTICS_SALES instead */
   ANALYTICS_SALES_SUMMARY: `${BASE_URL}/analytics/sales-summary`,
   /** @deprecated Use ANALYTICS_SALES instead */

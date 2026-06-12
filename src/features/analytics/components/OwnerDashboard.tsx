@@ -30,6 +30,11 @@ interface OwnerDashboardProps {
 }
 
 export function OwnerDashboard({ data }: OwnerDashboardProps) {
+  // Defensive check during role transitions
+  if (!data || !data.forecasting) {
+    return null;
+  }
+
   const { metrics, categoryData, forecasting } = data;
 
   // Format currency in Rupiah (IDR)
@@ -63,21 +68,11 @@ export function OwnerDashboard({ data }: OwnerDashboardProps) {
   return (
     <div className="space-y-6">
       {/* ── SECTION HEADER ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <Typography variant="h2" weight="bold">
-            Executive Summary & Business Intelligence
-          </Typography>
-          <Typography variant="body-sm" color="tertiary">
-            Analitik finansial aset dan proyeksi penjualan otomatis menggunakan Machine Learning.
-          </Typography>
-        </div>
-        <div className="flex gap-2">
-          <Badge variant="success" className="h-8 gap-1.5 px-3 rounded-lg text-xs font-semibold">
-            <Sparkles className="h-3.5 w-3.5 text-success-600" />
-            AI Model Active
-          </Badge>
-        </div>
+      <div className="flex justify-end">
+        <Badge variant="success" className="h-8 gap-1.5 px-3 rounded-lg text-xs font-semibold">
+          <Sparkles className="h-3.5 w-3.5 text-success-600" />
+          AI Model Active
+        </Badge>
       </div>
 
       {/* ── METRICS GRID ──────────────────────────────────────────────────── */}

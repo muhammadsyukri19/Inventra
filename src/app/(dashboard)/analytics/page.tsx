@@ -3,7 +3,11 @@
 import React, { useState } from 'react';
 import { Typography } from '@/components/atoms/typography';
 import { useAuthStore } from '@/features/auth/stores/auth.store';
-import { useAnalyticsDashboard } from '@/features/analytics/hooks/useAnalytics';
+import {
+  useOwnerAnalytics,
+  useStaffAnalytics,
+  useAdminAnalytics,
+} from '@/features/analytics/hooks/useAnalytics';
 import { OwnerDashboard } from '@/features/analytics/components/OwnerDashboard';
 import { WarehouseDashboard } from '@/features/analytics/components/WarehouseDashboard';
 import { AdminDashboard } from '@/features/analytics/components/AdminDashboard';
@@ -18,28 +22,48 @@ export default function Page() {
   // Admin can toggle between views, other roles are locked to their own dashboard
   const [selectedRole, setSelectedRole] = useState<string>(userRole);
 
-  const { data, isLoading, isError, error } = useAnalyticsDashboard<any>(
-    userRole === 'admin' ? selectedRole : userRole
-  );
+  const currentActiveRole = userRole === 'admin' ? selectedRole : userRole;
+
+  const ownerQuery = useOwnerAnalytics(currentActiveRole === 'owner');
+  const staffQuery = useStaffAnalytics(currentActiveRole === 'staff_gudang');
+  const adminQuery = useAdminAnalytics(currentActiveRole === 'admin');
+
+  // Select the query based on current active role
+  const activeQuery =
+    currentActiveRole === 'owner'
+      ? ownerQuery
+      : currentActiveRole === 'staff_gudang'
+      ? staffQuery
+      : adminQuery;
+
+  const { isLoading, isError, error } = activeQuery;
 
   const renderDashboard = () => {
-    if (!data) return null;
-
-    const currentRole = userRole === 'admin' ? selectedRole : userRole;
-
-    switch (currentRole) {
+    switch (currentActiveRole) {
       case 'owner':
-        return <OwnerDashboard data={data} />;
+        return ownerQuery.data ? <OwnerDashboard data={ownerQuery.data} /> : null;
       case 'staff_gudang':
-        return <WarehouseDashboard data={data} />;
+        return staffQuery.data ? <WarehouseDashboard data={staffQuery.data} /> : null;
       case 'admin':
-        return <AdminDashboard data={data} />;
+        return adminQuery.data ? <AdminDashboard data={adminQuery.data} /> : null;
       default:
         return (
           <div className="p-6 text-center text-text-tertiary">
-            Role dashboard "{currentRole}" tidak dikenali.
+            Role dashboard "{currentActiveRole}" tidak dikenali.
           </div>
         );
+    }
+  };
+
+  const getHeaderDescription = () => {
+    switch (currentActiveRole) {
+      case 'owner':
+        return 'Analitik finansial aset dan proyeksi penjualan otomatis menggunakan Machine Learning (AI Forecasting).';
+      case 'staff_gudang':
+        return 'Pemantauan kesehatan ROP, kapasitas gudang, dan volume keluar-masuk barang.';
+      case 'admin':
+      default:
+        return 'Pemantauan kontribusi transaksi pengguna, persetujuan akun, dan kesehatan sistem.';
     }
   };
 
@@ -50,7 +74,7 @@ export default function Page() {
         <div>
           <Typography variant="h1">Pusat Analitik & Laporan</Typography>
           <Typography variant="body" color="secondary" className="mt-1">
-            Data analitik terpusat {userRole === 'admin' ? '(Admin Mode)' : `(${userRole.replace('_', ' ')})`}
+            {getHeaderDescription()}
           </Typography>
         </div>
 

@@ -29,19 +29,15 @@ interface WarehouseDashboardProps {
 }
 
 export function WarehouseDashboard({ data }: WarehouseDashboardProps) {
+  // Defensive check during role transitions
+  if (!data || !data.movementChartData) {
+    return null;
+  }
+
   const { metrics, movementChartData, topMovingProducts } = data;
 
   return (
     <div className="space-y-6">
-      {/* ── SECTION HEADER ─────────────────────────────────────────────────── */}
-      <div>
-        <Typography variant="h2" weight="bold">
-          Warehouse Operations & Stock Health
-        </Typography>
-        <Typography variant="body-sm" color="tertiary" className="mt-0.5">
-          Pemantauan kesehatan stok ROP, kapasitas gudang, dan volume keluar-masuk barang.
-        </Typography>
-      </div>
 
       {/* ── METRICS GRID ──────────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
