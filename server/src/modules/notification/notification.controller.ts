@@ -6,13 +6,13 @@ export class NotificationController {
   // Mengambil semua notifikasi milik user yang sedang login
   async getAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const userId = req.user!.id; // Diambil dari token login
+      const userId = req.user!.id;
       const notifications = await notificationService.getAll(userId);
       
-      sendSuccess(res, {
-        data: notifications,
-        message: 'Berhasil mengambil notifikasi'
-      });
+      // PERBAIKAN: Langsung kirim array 'notifications'
+      // sendSuccess akan membungkusnya menjadi { success: true, data: [notifications] }
+      sendSuccess(res, notifications); 
+      
     } catch (error) {
       next(error);
     }
