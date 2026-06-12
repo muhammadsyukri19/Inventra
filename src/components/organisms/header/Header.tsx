@@ -4,11 +4,12 @@ import { Button } from '@/components/atoms/button';
 import { Input } from '@/components/atoms/input';
 import { Avatar } from '@/components/atoms/avatar';
 import { Typography } from '@/components/atoms/typography';
-import { Menu, Bell, Search } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 import { useAuthStore } from '@/features/auth/stores/auth.store';
 import { useUIStore } from '@/stores/ui.store';
 import { ROLE_LABELS } from '@/constants/roles';
 import type { UserRole } from '@/types/common.types';
+import { NotificationDropdown } from '@/components/molecules/notification-dropdown';
 
 /**
  * Header organism.
@@ -50,17 +51,8 @@ export function Header() {
 
       {/* Right — Notification (Button atom) + User (Avatar atom + Typography atom) */}
       <div className="flex items-center gap-3">
-        {/* Notification bell — Button atom */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative"
-          aria-label="Notifikasi"
-        >
-          <Bell className="h-5 w-5" />
-          {/* Unread indicator dot */}
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-danger-500 animate-pulse-dot" />
-        </Button>
+        {/* Notification bell — Dropdown molecule */}
+        <NotificationDropdown />
 
         {/* User info — Typography atoms + Avatar atom */}
         <div className="flex items-center gap-3">

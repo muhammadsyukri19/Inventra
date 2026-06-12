@@ -1,8 +1,7 @@
 'use client';
 
 import { Typography } from '@/components/atoms/typography';
-import { EmptyState } from '@/components/molecules/empty-state';
-import { Settings } from 'lucide-react';
+import { SupplierContainer } from '@/features/supplier/components/SupplierContainer';
 
 export default function Page() {
   return (
@@ -10,17 +9,12 @@ export default function Page() {
       <div>
         <Typography variant="h1">Manajemen Supplier</Typography>
         <Typography variant="body" color="secondary" className="mt-1">
-          Kelola data supplier
+          Kelola database supplier dan kontak person resmi
         </Typography>
       </div>
 
-      <div className="rounded-xl border border-border-default bg-surface p-6">
-        <EmptyState
-          icon={<Settings className="h-12 w-12 text-primary-400 animate-spin-slow" />}
-          title="Sedang Dalam Pengembangan"
-          description="Halaman ini akan segera hadir pada update berikutnya."
-        />
-      </div>
+      <SupplierContainer />
     </div>
   );
 }
+

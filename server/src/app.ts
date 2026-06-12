@@ -14,6 +14,8 @@ import inventoryRoutes from './modules/inventory/inventory.routes';
 import transactionRoutes from './modules/transaction/transaction.routes';
 import recommendationRoutes from './modules/recommendation/recommendation.routes';
 
+import notificationRoutes from './modules/notification/notification.routes';
+
 /**
  * Express application factory.
  *
@@ -71,7 +73,7 @@ app.use(`${API_PREFIX}/transactions`, transactionRoutes);
 // app.use(`${API_PREFIX}/stock-movements`, stockMovementRoutes);
 // app.use(`${API_PREFIX}/analytics`, analyticsRoutes);
 app.use(`${API_PREFIX}/recommendations`, recommendationRoutes);
-// app.use(`${API_PREFIX}/notifications`, notificationRoutes);
+app.use(`${API_PREFIX}/notifications`, notificationRoutes);
 // app.use(`${API_PREFIX}/dashboard`, dashboardRoutes);
 
 // ============================================================================

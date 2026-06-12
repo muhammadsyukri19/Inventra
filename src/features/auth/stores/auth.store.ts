@@ -12,7 +12,7 @@ export interface AuthUser {
   id: string;
   email: string;
   name: string;
-  username: string;
+  username?: string;
   role: string; // 'admin' | 'staff_gudang' | 'owner'
 }
 

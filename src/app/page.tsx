@@ -66,7 +66,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Link href={ROUTES.LOGIN}>
-                <Button variant="outline" size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-xl bg-white/50 backdrop-blur-sm border-primary-200 text-primary-800 hover:bg-white hover:border-primary-300">
+                <Button variant="secondary" size="lg" className="w-full sm:w-auto text-lg px-8 py-6 rounded-xl bg-white/50 backdrop-blur-sm border-primary-200 text-primary-800 hover:bg-white hover:border-primary-300">
                   Login ke Dashboard
                 </Button>
               </Link>
@@ -166,7 +166,7 @@ export default function LandingPage() {
                 </Button>
               </Link>
               <Link href={ROUTES.LOGIN}>
-                <Button variant="outline" size="lg" className="border-white text-white hover:bg-white/10 text-lg px-10 py-6 rounded-xl font-bold">
+                <Button variant="secondary" size="lg" className="border-white text-white hover:bg-white/10 text-lg px-10 py-6 rounded-xl font-bold">
                   Login ke Dashboard
                 </Button>
               </Link>
