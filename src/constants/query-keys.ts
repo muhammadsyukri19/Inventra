@@ -48,6 +48,7 @@ export const QUERY_KEYS = {
   ANALYTICS_TOP_PRODUCTS: (params?: object) =>
     ['analytics', 'top-products', params] as const,
   ANALYTICS_STOCK_HEALTH: ['analytics', 'stock-health'] as const,
+  ANALYTICS_DASHBOARD_ROLE: (role?: string) => ['analytics', 'dashboard-role', role] as const,
 
   // ── Recommendations ───────────────────────────────────────────────────────
   RECOMMENDATIONS: (params?: object) => ['recommendations', params] as const,

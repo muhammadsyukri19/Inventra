@@ -25,4 +25,16 @@ export class RecommendationController {
       return sendError(res, error.message, 500);
     }
   };
+
+  // Update status rekomendasi (Approve/Reject)
+  updateStatus = async (req: Request, res: Response) => {
+    try {
+      const id = req.params.id as string;
+      const status = req.body.status as any;
+      const result = await recommendationService.updateRecommendationStatus(id, status);
+      return sendSuccess(res, result, 200);
+    } catch (error: any) {
+      return sendError(res, error.message, 500);
+    }
+  };
 }

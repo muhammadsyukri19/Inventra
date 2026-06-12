@@ -15,4 +15,7 @@ router.get('/', controller.getPendingRecommendations);
 // Trigger kalkulasi (Hanya Admin yang bisa trigger manual)
 router.post('/trigger', rbacMiddleware('admin'), controller.triggerPrediction);
 
+// Update status rekomendasi (Owner / Admin)
+router.patch('/:id/status', rbacMiddleware('owner', 'admin'), controller.updateStatus);
+
 export default router;
