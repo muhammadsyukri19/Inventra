@@ -9,8 +9,9 @@ export class InventoryController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       const search = (req.query.search as string);
+      const stockStatus = req.query.stockStatus as 'low' | 'out' | 'safe' | undefined;
 
-      const { total, data } = await inventoryService.findAll({ page, limit, search });
+      const { total, data } = await inventoryService.findAll({ page, limit, search, stockStatus });
       const meta = buildPaginationMeta(total, page, limit);
 
       sendSuccess(res, {

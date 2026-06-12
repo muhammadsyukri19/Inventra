@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import apiClient from '@/libs/api-client';
 import { useAuthStore } from '@/features/auth/stores/auth.store';
@@ -9,6 +9,7 @@ const NOTIFICATIONS_QUERY_KEY = ['notifications'];
 export const useNotifications = () => {
   const queryClient = useQueryClient();
   const { accessToken } = useAuthStore();
+  const [reconnectTrigger, setReconnectTrigger] = useState(0);
 
   // 1. Fetch initial notifications
   const query = useQuery({
@@ -46,13 +47,29 @@ export const useNotifications = () => {
 
     eventSource.onerror = (error) => {
       console.error('SSE Error:', error);
-      // EventSource automatically tries to reconnect, but you can add custom logic if needed
+      eventSource.close();
+
+      const currentToken = useAuthStore.getState().accessToken;
+
+      // Trigger automatic token validation and refresh via interceptor
+      apiClient.get('/notifications')
+        .then(() => {
+          // Reconnect only if token didn't change (transient error, not 401 expiration)
+          if (useAuthStore.getState().accessToken === currentToken) {
+            setTimeout(() => {
+              setReconnectTrigger(prev => prev + 1);
+            }, 5000);
+          }
+        })
+        .catch((err) => {
+          console.error('Failed to reconnect notification stream:', err);
+        });
     };
 
     return () => {
       eventSource.close();
     };
-  }, [accessToken, queryClient]);
+  }, [accessToken, queryClient, reconnectTrigger]);
 
   // 3. Mark single as read
   const markAsReadMutation = useMutation({

@@ -48,14 +48,14 @@ export class ProductService {
         where.inventory = { currentStock: 0 };
       } else if (stockStatus === 'low') {
         const lowStockIds = await prisma.$queryRaw<{ product_id: string }[]>`
-          SELECT product_id FROM inventories
-          WHERE current_stock > 0 AND current_stock <= reorder_point
+          SELECT "product_id" FROM "inventories"
+          WHERE "current_stock" > 0 AND "current_stock" <= "reorder_point"
         `;
         where.id = { in: lowStockIds.map((r) => r.product_id) };
       } else if (stockStatus === 'safe') {
         const safeIds = await prisma.$queryRaw<{ product_id: string }[]>`
-          SELECT product_id FROM inventories
-          WHERE current_stock > reorder_point
+          SELECT "product_id" FROM "inventories"
+          WHERE "current_stock" > "reorder_point"
         `;
         where.id = { in: safeIds.map((r) => r.product_id) };
       }
