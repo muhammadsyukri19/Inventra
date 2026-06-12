@@ -1,68 +1,29 @@
 'use client';
+import { Typography } from '@/components/atoms/typography';
+import { Badge } from '@/components/atoms/badge';
+import { ArrowUpCircle } from 'lucide-react';
 
-import React, { useEffect, useState } from 'react';
-import { Typography } from '../../atoms/typography';
-import { Button } from '../../atoms/button';
-import { EmptyState } from '../../molecules/empty-state';
-import { RefreshCw, AlertTriangle } from 'lucide-react';
-import apiClient from '@/services/api-client';
-
-export const RecommendationsPanel = () => {
-  const [recommendations, setRecommendations] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const fetchRecommendations = async () => {
-    setIsLoading(true);
-    try {
-      const response = await apiClient.get('/api/v1/recommendations');
-      setRecommendations(response.data.data || []);
-    } catch (error) {
-      console.error('Failed to fetch recommendations', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRecommendations();
-  }, []);
-
-  if (recommendations.length === 0) {
-    return (
-      <EmptyState
-        icon={<RefreshCw className={`h-12 w-12 ${isLoading ? 'animate-spin' : ''}`} />}
-        title="Belum ada rekomendasi"
-        description="AI belum menemukan produk yang perlu di-restock saat ini."
-        className="mt-4"
-      />
-    );
+export const RecommendationsPanel = ({ data }: { data?: any[] }) => {
+  if (!data || data.length === 0) {
+    return <p className="text-sm text-slate-400 mt-4 italic">Belum ada rekomendasi restock saat ini.</p>;
   }
 
   return (
     <div className="mt-4 space-y-4">
-      <div className="flex justify-end">
-         <Button variant="secondary" size="sm" onClick={fetchRecommendations} disabled={isLoading}>
-            <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
-            Refresh
-         </Button>
-      </div>
-      <ul className="space-y-3">
-        {recommendations.slice(0, 5).map((rec) => (
-          <li key={rec.id} className="p-3 bg-surface border border-default rounded-lg flex items-center justify-between">
-            <div>
-              <Typography variant="body" className="font-semibold">{rec.product.name}</Typography>
-              <Typography variant="body-sm" color="secondary">
-                Stok: {rec.currentStock} | Rekomendasi Pesan: {rec.recommendedQuantity}
-              </Typography>
+      {data.map((item, index) => (
+        <div key={index} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl border border-slate-100 transition-hover hover:bg-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-primary-50 rounded-lg text-primary-600">
+              <ArrowUpCircle className="w-5 h-5" />
             </div>
-            {rec.priority === 'CRITICAL' ? (
-               <AlertTriangle className="text-danger h-5 w-5" />
-            ) : (
-               <RefreshCw className="text-warning h-5 w-5" />
-            )}
-          </li>
-        ))}
-      </ul>
+            <div>
+              <p className="text-sm font-bold text-slate-800">{item.product.name}</p>
+              <p className="text-xs text-slate-500">Stok: {item.currentStock} {item.product.unit}</p>
+            </div>
+          </div>
+          <Badge variant="warning">Restock Segera</Badge>
+        </div>
+      ))}
     </div>
   );
 };

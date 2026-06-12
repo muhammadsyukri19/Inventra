@@ -2,9 +2,10 @@ import { prisma } from '../../config/database';
 
 export class DashboardService {
   /**
-   * Mengambil ringkasan angka untuk kartu dashboard
+   * Mengambil ringkasan lengkap untuk Dashboard
    */
   async getSummary() {
+    // 1. Ambil data angka dasar
     const totalProducts = await prisma.product.count();
     
     const inventorySum = await prisma.inventory.aggregate({
@@ -13,7 +14,7 @@ export class DashboardService {
 
     const lowStockCount = await prisma.inventory.count({
       where: {
-        currentStock: { gt: 0, lte: 5 }
+        currentStock: { gt: 0, lte: 5 } // Ambang batas stok tipis
       }
     });
 
@@ -27,8 +28,47 @@ export class DashboardService {
       where: { type: 'OUT' }
     });
 
-    // Ambil data untuk grafik (Panggil fungsi baru di bawah)
+    // 2. Ambil data Tren Grafik (7 hari terakhir)
     const chartData = await this.getChartData();
+
+    // 3. Ambil data Rekomendasi Restock (DSS Logic sederhana)
+    // Mencari produk yang stoknya <= 10 untuk segera dipesan kembali
+    const recommendations = await prisma.inventory.findMany({
+      where: {
+        currentStock: { lte: 10 } 
+      },
+      include: {
+        product: {
+          select: { name: true, unit: true, sku: true }
+        }
+      },
+      take: 5,
+      orderBy: { currentStock: 'asc' }
+    });
+
+    // 4. Ambil data Produk Terlaris (Berdasarkan jumlah item keluar)
+    const topProductsRaw = await prisma.transactionItem.groupBy({
+      by: ['productId'],
+      _sum: { quantity: true },
+      orderBy: {
+        _sum: { quantity: 'desc' }
+      },
+      take: 5
+    });
+
+    // Ambil detail nama produk untuk Top Products
+    const topProducts = await Promise.all(
+      topProductsRaw.map(async (item) => {
+        const product = await prisma.product.findUnique({
+          where: { id: item.productId },
+          select: { name: true }
+        });
+        return {
+          name: product?.name || 'Produk Tidak Dikenal',
+          totalSold: item._sum.quantity || 0
+        };
+      })
+    );
 
     return {
       totalProducts: totalProducts || 0,
@@ -37,37 +77,26 @@ export class DashboardService {
       outOfStockCount: outOfStockCount || 0,
       monthlySalesCount: totalSales || 0,
       totalTransactions: totalTransactions || 0,
-      chartData // Masukkan data grafik ke dalam balasan API
+      chartData,
+      recommendations, // Tambahkan ini
+      topProducts      // Tambahkan ini
     };
   }
 
   /**
-   * Fungsi baru untuk mengambil tren transaksi 7 hari terakhir
+   * Fungsi mengambil tren transaksi 7 hari terakhir
    */
   async getChartData() {
     const sevenDaysAgo = new Date();
     sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-    // 1. Ambil semua transaksi dalam 7 hari terakhir
     const transactions = await prisma.transaction.findMany({
-      where: {
-        createdAt: {
-          gte: sevenDaysAgo,
-        },
-      },
-      select: {
-        createdAt: true,
-        type: true,
-      },
-      orderBy: {
-        createdAt: 'asc',
-      },
+      where: { createdAt: { gte: sevenDaysAgo } },
+      select: { createdAt: true, type: true },
+      orderBy: { createdAt: 'asc' },
     });
 
-    // 2. Kelompokkan data berdasarkan tanggal
-    // Hasilnya nanti seperti: { '2023-10-01': { date: '01/10', masuk: 5, keluar: 2 } }
     const grouped = transactions.reduce((acc: any, curr) => {
-      // Format tanggal jadi DD/MM (misal: 11/06)
       const day = curr.createdAt.getDate().toString().padStart(2, '0');
       const month = (curr.createdAt.getMonth() + 1).toString().padStart(2, '0');
       const dateKey = `${day}/${month}`;
@@ -85,7 +114,6 @@ export class DashboardService {
       return acc;
     }, {});
 
-    // 3. Ubah objek menjadi array agar bisa dibaca library grafik
     return Object.values(grouped);
   }
 }

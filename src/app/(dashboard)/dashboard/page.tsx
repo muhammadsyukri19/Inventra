@@ -169,7 +169,7 @@ export default function DashboardPage() {
 
         <Card padding="md" className="bg-white border border-slate-200">
           <Typography variant="h3">Rekomendasi Restock AI</Typography>
-          <RecommendationsPanel />
+          <RecommendationsPanel data={summary?.recommendations} />
         </Card>
       </div>
     </div>
